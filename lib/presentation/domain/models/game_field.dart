@@ -30,15 +30,17 @@ class GameField with Store {
     final pos = checker.position;
 
     if (checker.color == Colors.black) {
-      int r1 = pos.row - 1;
-      int c1 = pos.column - 1;
-      int r2 = pos.row - 1;
-      int c2 = pos.column + 1;
+      if(checker.isQueen){
+        freeCells = takeDiagCells(startPoint: checker.position, diag: Diag.topLeft,length: 8);
+        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.topRight,length: 8));
+        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomLeft,length: 8));
+        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomRight,length: 8));
+      }
+      else{
+        freeCells = takeDiagCells(startPoint: checker.position, diag: Diag.topLeft,length: 1);
+        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.topRight,length: 1));
+      }
 
-      freeCells.addAll(
-          cells.where((element) => element.row == r1 && element.column == c1));
-      freeCells.addAll(
-          cells.where((element) => element.row == r2 && element.column == c2));
 
       freeCells = freeCells
           .where((element) =>
@@ -46,15 +48,16 @@ class GameField with Store {
               !whitePositions.map((y) => y.position).contains(element))
           .toList();
     } else if (checker.color == Colors.white) {
-      int r1 = pos.row + 1;
-      int c1 = pos.column - 1;
-      int r2 = pos.row + 1;
-      int c2 = pos.column + 1;
-
-      freeCells.addAll(
-          cells.where((element) => element.row == r1 && element.column == c1));
-      freeCells.addAll(
-          cells.where((element) => element.row == r2 && element.column == c2));
+      if(checker.isQueen){
+        freeCells = takeDiagCells(startPoint: checker.position, diag: Diag.topLeft,length: 8);
+        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.topRight,length: 8));
+        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomLeft,length: 8));
+        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomRight,length: 8));
+      }
+      else{
+        freeCells = takeDiagCells(startPoint: checker.position, diag: Diag.bottomLeft,length: 1);
+        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomRight,length: 1));
+      }
 
       freeCells = freeCells
           .where((element) =>
@@ -67,38 +70,65 @@ class GameField with Store {
     return freeCells;
   }
 
+  List<GameCell> takeDiagCells(
+      {required GameCell startPoint, required Diag diag, int length = 8}) {
+    List<GameCell> freeCells = [];
+    switch (diag) {
+      case Diag.topLeft:
+        freeCells.addAll(List.generate(
+            length+1,
+            (index) => GameCell(
+                row: startPoint.row-index,
+                column: startPoint.column-index,
+                cellColor: CellColor.black)));
+      case Diag.topRight:
+        freeCells.addAll(List.generate(
+            length+1,
+                (index) => GameCell(
+                row: startPoint.row-index,
+                column: startPoint.column+index,
+                cellColor: CellColor.black)));
+      case Diag.bottomLeft:
+        freeCells.addAll(List.generate(
+            length+1,
+                (index) => GameCell(
+                row: startPoint.row+index,
+                column: startPoint.column-index,
+                cellColor: CellColor.black)));
+      case Diag.bottomRight:
+        freeCells.addAll(List.generate(
+            length+1,
+                (index) => GameCell(
+                row: startPoint.row+index,
+                column: startPoint.column+index,
+                cellColor: CellColor.black)));
+    }
+    freeCells = freeCells.where((element) => cells.contains(element)).toList();
+    freeCells = freeCells.skip(1).toList();
+    return freeCells;
+  }
+
   List<GameCell> getFreeCellsAfterAttack(Checker checker) {
     List<GameCell> freeCells = [];
     final pos = checker.position;
 
     if (checker.color == Colors.black) {
-      int r1 = pos.row - 1;
-      int c1 = pos.column - 1;
-
-      int r2 = pos.row - 1;
-      int c2 = pos.column + 1;
-
-      int r3 = pos.row + 1;
-      int c3 = pos.column + 1;
-
-      int r4 = pos.row + 1;
-      int c4 = pos.column - 1;
-      freeCells.addAll(
-          cells.where((element) => element.row == r1 && element.column == c1));
-      freeCells.addAll(
-          cells.where((element) => element.row == r2 && element.column == c2));
-      freeCells.addAll(
-          cells.where((element) => element.row == r3 && element.column == c3));
-      freeCells.addAll(
-          cells.where((element) => element.row == r4 && element.column == c4));
-      freeCells = freeCells
-          .where((element) =>
-              !blackPositions.map((y) => y.position).contains(element))
-          .toList();
+      if(checker.isQueen){
+        freeCells = takeDiagCells(startPoint: checker.position, diag: Diag.topLeft,length: 8);
+        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.topRight,length: 8));
+        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomLeft,length: 8));
+        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomRight,length: 8));
+      }else{
+        freeCells = takeDiagCells(startPoint: checker.position, diag: Diag.topLeft,length: 1);
+        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.topRight,length: 1));
+        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomLeft,length: 1));
+        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomRight,length: 1));
+      }
       var whiteEnemyPositions = whitePositions
           .map((element) => element.position)
           .where((element) => freeCells.contains(element))
           .toList();
+
       var cellsAfterAttack = whiteEnemyPositions
           .map((e) => AttackDirection(
               row: pos.row - e.row, column: pos.column - e.column))
@@ -127,25 +157,17 @@ class GameField with Store {
 
       // freeCells = freeCells.where((element) => whitePositions.map((y)=>y.position).contains(element)).toList();
     } else if (checker.color == Colors.white) {
-      int r1 = pos.row + 1;
-      int c1 = pos.column - 1;
-
-      int r2 = pos.row + 1;
-      int c2 = pos.column + 1;
-
-      int r3 = pos.row - 1;
-      int c3 = pos.column + 1;
-
-      int r4 = pos.row - 1;
-      int c4 = pos.column - 1;
-      freeCells.addAll(
-          cells.where((element) => element.row == r1 && element.column == c1));
-      freeCells.addAll(
-          cells.where((element) => element.row == r2 && element.column == c2));
-      freeCells.addAll(
-          cells.where((element) => element.row == r3 && element.column == c3));
-      freeCells.addAll(
-          cells.where((element) => element.row == r4 && element.column == c4));
+      if(checker.isQueen){
+        freeCells = takeDiagCells(startPoint: checker.position, diag: Diag.topLeft,length: 8);
+        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.topRight,length: 8));
+        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomLeft,length: 8));
+        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomRight,length: 8));
+      }else{
+        freeCells = takeDiagCells(startPoint: checker.position, diag: Diag.topLeft,length: 1);
+        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.topRight,length: 1));
+        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomLeft,length: 1));
+        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomRight,length: 1));
+      }
       freeCells = freeCells
           .where((element) =>
               !whitePositions.map((y) => y.position).contains(element))
@@ -187,43 +209,58 @@ class GameField with Store {
     print(firstPos);
     print(secondPos);
     final AttackDirection attackDirection = AttackDirection(
-        row: (secondPos.row - firstPos.row).isNegative?-1:1,
-        column: (secondPos.column - firstPos.column).isNegative?-1:1);
-    final enemyPos = GameCell(row: firstPos.row+attackDirection.row , column: firstPos.column+attackDirection.column , cellColor: CellColor.black);
-    if(checker.color==Colors.white){
-      final enemy = blackPositions.where((element) => element.position==enemyPos);
-      if(enemy.isNotEmpty){
+        row: (secondPos.row - firstPos.row).isNegative ? -1 : 1,
+        column: (secondPos.column - firstPos.column).isNegative ? -1 : 1);
+    final enemyPos = GameCell(
+        row: firstPos.row + attackDirection.row,
+        column: firstPos.column + attackDirection.column,
+        cellColor: CellColor.black);
+    if (checker.color == Colors.white) {
+      final enemy =
+          blackPositions.where((element) => element.position == enemyPos);
+      if (enemy.isNotEmpty) {
         return enemy.first;
       }
-    }else  if(checker.color==Colors.black){
-      final enemy = whitePositions.where((element) => element.position==enemyPos);
-      if(enemy.isNotEmpty){
+    } else if (checker.color == Colors.black) {
+      final enemy =
+          whitePositions.where((element) => element.position == enemyPos);
+      if (enemy.isNotEmpty) {
         return enemy.first;
       }
     }
     return null;
   }
-  void killChecker(Checker? checker){
-   if( checker?.color==Colors.white){
-     whitePositions.removeWhere((element) => element.position.column == checker!.position.column &&element.position.row == checker!.position.row  );
-     deadWhitePositions.add(checker!);
-   }
-   if( checker?.color==Colors.black){
-     blackPositions.removeWhere((element) => element.position.column == checker!.position.column &&element.position.row == checker!.position.row  );
-     deadBlackPositions.add(checker!);
-   }
-  }
-  bool hasOtherKiller(Checker? checker){
 
-    if( checker?.color==Colors.white){
+  void killChecker(Checker? checker) {
+    if (checker?.color == Colors.white) {
+      whitePositions.removeWhere((element) =>
+          element.position.column == checker!.position.column &&
+          element.position.row == checker!.position.row);
+      deadWhitePositions.add(checker!);
+    }
+    if (checker?.color == Colors.black) {
+      blackPositions.removeWhere((element) =>
+          element.position.column == checker!.position.column &&
+          element.position.row == checker!.position.row);
+      deadBlackPositions.add(checker!);
+    }
+  }
+
+  bool hasOtherKiller(Checker? checker) {
+    if (checker?.color == Colors.white) {
       final whitePositions = [...this.whitePositions];
-      whitePositions.removeWhere((element) => element.position.column == checker!.position.column &&element.position.row == checker.position.row  );
-      return whitePositions.any((element) => getFreeCellsAfterAttack(element).isNotEmpty);
-    }else
-    if( checker?.color==Colors.black){
+      whitePositions.removeWhere((element) =>
+          element.position.column == checker!.position.column &&
+          element.position.row == checker.position.row);
+      return whitePositions
+          .any((element) => getFreeCellsAfterAttack(element).isNotEmpty);
+    } else if (checker?.color == Colors.black) {
       final blackPositions = [...this.blackPositions];
-      blackPositions.removeWhere((element) => element.position.column == checker!.position.column &&element.position.row == checker!.position.row  );
-      return blackPositions.any((element) => getFreeCellsAfterAttack(element).isNotEmpty);
+      blackPositions.removeWhere((element) =>
+          element.position.column == checker!.position.column &&
+          element.position.row == checker!.position.row);
+      return blackPositions
+          .any((element) => getFreeCellsAfterAttack(element).isNotEmpty);
     }
     return false;
   }
@@ -242,3 +279,5 @@ class GameField with Store {
     return 'GameField{cells: $cells}';
   }
 }
+
+enum Diag { topLeft, topRight, bottomLeft, bottomRight }

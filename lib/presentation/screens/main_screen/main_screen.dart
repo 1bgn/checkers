@@ -72,6 +72,7 @@ class _MainScreenState extends State<MainScreen> {
                                      .map((e) {
                                    final coords = e.getPosition(cellWidth);
                                    return Container(
+
                                      margin: EdgeInsets.only(
                                          left: coords.x - cellWidth,
                                          top: coords.y - cellWidth),
@@ -83,6 +84,7 @@ class _MainScreenState extends State<MainScreen> {
                                            : Colors.grey.shade300,
                                      ),
                                      child: _LightMarker(
+                                       cell: e,
                                        isLight: mobxMainScreenController.gameField
                                            .isLightedCell(e),
                                        isAttackLight: mobxMainScreenController
@@ -122,7 +124,7 @@ class _MainScreenState extends State<MainScreen> {
                                                .selectBlackChecker(i);
                                          },
                                          child: Container(
-                                           child: SvgPicture.asset("assets/images/black_checker.svg",),
+                                           child: SvgPicture.asset(e.isQueen?"assets/images/queen.svg":"assets/images/white_checker.svg",),
 
                                            margin: EdgeInsets.only(
                                                left: coords.x - cellWidth,
@@ -154,7 +156,7 @@ class _MainScreenState extends State<MainScreen> {
                                                top: coords.y - cellWidth),
                                            width: cellWidth,
                                            height: cellWidth,
-                                           child: SvgPicture.asset("assets/images/white_checker.svg",),
+                                           child: SvgPicture.asset(e.isQueen?"assets/images/queen.svg":"assets/images/white_checker.svg",),
                                            decoration: BoxDecoration(
                                              color: Colors.white,
                                              shape: BoxShape.circle,
@@ -185,12 +187,13 @@ class _LightMarker extends StatelessWidget {
   final bool isLight;
   final bool isAttackLight;
   final VoidCallback onTap;
+  final GameCell cell;
 
   const _LightMarker(
       {super.key,
       required this.isLight,
       required this.isAttackLight,
-      required this.onTap});
+      required this.onTap, required this.cell});
 
   @override
   Widget build(BuildContext context) {
@@ -224,6 +227,6 @@ class _LightMarker extends StatelessWidget {
             ),
           ));
     }
-    return SizedBox();
+    return SizedBox(child: Text("${cell.row} ${cell.column}"),);
   }
 }

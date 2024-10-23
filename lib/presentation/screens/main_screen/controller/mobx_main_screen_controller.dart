@@ -50,6 +50,9 @@ abstract class _MobxMainScreenController with Store {
     final killedChecker = _gameField!.getKilledCheckersAfterAttack(checker, firstPosition, secondPosition);
     gameField.killChecker(killedChecker);
     _gameField!.attackLightedPositions.clear();
+    if(position.row==1){
+      _gameField!.blackPositions[index] = checker.copy(isQueen: true,position: position);
+    }
     if(killedChecker!=null && _gameField!.getFreeCellsAfterAttack(  _gameField!.whitePositions[index] ).isNotEmpty){
       gameField.currentSide = Colors.black;
     }else{
@@ -80,6 +83,12 @@ abstract class _MobxMainScreenController with Store {
     final killedChecker = _gameField!.getKilledCheckersAfterAttack(checker, firstPosition, secondPosition);
     gameField.killChecker(killedChecker);
     _gameField!.attackLightedPositions.clear();
+    // print("IS QUEEN ${checker.position}");
+
+    if(position.row==8){
+      _gameField!.whitePositions[index] = checker.copy(isQueen: true,position: position);
+    }
+    //Конец хода
     if(killedChecker!=null &&_gameField!.getFreeCellsAfterAttack(  _gameField!.whitePositions[index] ).isNotEmpty){
       gameField.currentSide = Colors.white;
     }else{
@@ -145,18 +154,22 @@ abstract class _MobxMainScreenController with Store {
         if (odd) {
           cells.addAll([
             Checker(
+
                 color: color,
                 position:
                     GameCell(row: i, column: 2, cellColor: CellColor.black)),
             Checker(
+
                 color: color,
                 position:
                     GameCell(row: i, column: 4, cellColor: CellColor.black)),
             Checker(
+
                 color: color,
                 position:
                     GameCell(row: i, column: 6, cellColor: CellColor.black)),
             Checker(
+
                 color: color,
                 position:
                     GameCell(row: i, column: 8, cellColor: CellColor.black))
@@ -164,10 +177,12 @@ abstract class _MobxMainScreenController with Store {
         } else {
           cells.addAll([
             Checker(
+
                 color: color,
                 position:
                     GameCell(row: i, column: 1, cellColor: CellColor.black)),
             Checker(
+
                 color: color,
                 position:
                     GameCell(row: i, column: 3, cellColor: CellColor.black)),
@@ -188,6 +203,7 @@ abstract class _MobxMainScreenController with Store {
         if (odd) {
           cells.addAll([
             Checker(
+
                 color: color,
                 position:
                     GameCell(row: i, column: 2, cellColor: CellColor.black)),
@@ -207,10 +223,12 @@ abstract class _MobxMainScreenController with Store {
         } else {
           cells.addAll([
             Checker(
+
                 color: color,
                 position:
                     GameCell(row: i, column: 1, cellColor: CellColor.black)),
             Checker(
+
                 color: color,
                 position:
                     GameCell(row: i, column: 3, cellColor: CellColor.black)),
@@ -226,6 +244,7 @@ abstract class _MobxMainScreenController with Store {
         }
       }
     }
+   return  cells.take(2).map((e) => e.copy(isQueen: true)).toList();
     return cells;
   }
 
