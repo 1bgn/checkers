@@ -26,11 +26,18 @@ class GameField with Store {
   }
 
   List<GameCell> getFreeCells(Checker checker) {
+    final Map<Diag,List<GameCell>> diags = {
+      // Diag.topLeft:takeDiagCells(startPoint: checker.position, diag: Diag.topLeft,length: checker.isQueen?8:1),
+      // Diag.topRight:takeDiagCells(startPoint: checker.position, diag: Diag.topRight,length: checker.isQueen?8:1),
+      // Diag.bottomLeft:takeDiagCells(startPoint: checker.position, diag: Diag.bottomLeft,length: checker.isQueen?8:1),
+      // Diag.bottomRight:takeDiagCells(startPoint: checker.position, diag: Diag.bottomRight,length: checker.isQueen?8:1),
+    };
     List<GameCell> freeCells = [];
     final pos = checker.position;
 
     if (checker.color == Colors.black) {
       if(checker.isQueen){
+        diags.putIfAbsent(Diag.topLeft, () => takeDiagCells(startPoint: checker.position, diag: Diag.topLeft,length: 8))
         freeCells = takeDiagCells(startPoint: checker.position, diag: Diag.topLeft,length: 8);
         freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.topRight,length: 8));
         freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomLeft,length: 8));
@@ -107,40 +114,81 @@ class GameField with Store {
     freeCells = freeCells.skip(1).toList();
     return freeCells;
   }
+  Diag defineDiag(GameCell startPoint,GameCell endPoint){
+    if( startPoint.row > endPoint.row && startPoint.column>endPoint.column){
+      return Diag.topLeft;
+    }else if( startPoint.row > endPoint.row && startPoint.column<endPoint.column){
+      return Diag.topRight;
+    }else if( startPoint.row <endPoint.row && startPoint.column>endPoint.column){
+      return Diag.bottomLeft;
+    }else{
+      return Diag.bottomRight;
 
+    }
+  }
+  List<GameCell> cellsAfterSecondPos(  List<GameCell> diag, GameCell secondPos){
+    List<GameCell> enemyPoints = [];
+    bool needTake = false;
+    for (var element in diag) {
+      if(needTake) {
+        enemyPoints.add(element);
+      }
+      if(element == secondPos){
+        needTake = true;
+      }
+    }
+    return enemyPoints;
+  }
+  List<GameCell> cellsBeforeSecondPos(  List<GameCell> diag, GameCell secondPoint){
+    List<GameCell> enemyPoints = [];
+    bool needTake = false;
+    for (var element in diag) {
+
+      if(element == secondPoint){
+        needTake = true;
+      }
+      if(!needTake) {
+        enemyPoints.add(element);
+      }
+    }
+    return enemyPoints;
+  }
   List<GameCell> getFreeCellsAfterAttack(Checker checker) {
-    List<GameCell> freeCells = [];
-    final pos = checker.position;
+
+    final Map<Diag,List<GameCell>> diags = {
+      Diag.topLeft:takeDiagCells(startPoint: checker.position, diag: Diag.topLeft,length: checker.isQueen?8:1),
+      Diag.topRight:takeDiagCells(startPoint: checker.position, diag: Diag.topRight,length: checker.isQueen?8:1),
+      Diag.bottomLeft:takeDiagCells(startPoint: checker.position, diag: Diag.bottomLeft,length: checker.isQueen?8:1),
+      Diag.bottomRight:takeDiagCells(startPoint: checker.position, diag: Diag.bottomRight,length: checker.isQueen?8:1),
+    };
+
+
 
     if (checker.color == Colors.black) {
-      if(checker.isQueen){
-        freeCells = takeDiagCells(startPoint: checker.position, diag: Diag.topLeft,length: 8);
-        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.topRight,length: 8));
-        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomLeft,length: 8));
-        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomRight,length: 8));
-      }else{
-        freeCells = takeDiagCells(startPoint: checker.position, diag: Diag.topLeft,length: 1);
-        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.topRight,length: 1));
-        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomLeft,length: 1));
-        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomRight,length: 1));
-      }
+      // if(checker.isQueen){
+      //   freeCells = takeDiagCells(startPoint: checker.position, diag: Diag.topLeft,length: 8);
+      //   freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.topRight,length: 8));
+      //   freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomLeft,length: 8));
+      //   freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomRight,length: 8));
+      // }else{
+      //   freeCells = takeDiagCells(startPoint: checker.position, diag: Diag.topLeft,length: 1);
+      //   freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.topRight,length: 1));
+      //   freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomLeft,length: 1));
+      //   freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomRight,length: 1));
+      // }
       var whiteEnemyPositions = whitePositions
           .map((element) => element.position)
-          .where((element) => freeCells.contains(element))
+          .where((element) => diags[Diag.bottomLeft]!.contains(element) ||diags[Diag.bottomRight ]!.contains(element) ||diags[Diag.topLeft ]!.contains(element)  ||diags[Diag.topRight ]!.contains(element))
           .toList();
+      var attackDiags = whiteEnemyPositions.map((e) => defineDiag(checker.position  , e)).map((e) => diags[e]).toList();
+       List<GameCell> cellsAfterAttack = [];
+      for (int i = 0 ;i<whiteEnemyPositions.length;i++) {
+        final enemy = whiteEnemyPositions[i];
+        final attackDiag = cellsAfterSecondPos(attackDiags[i]!, enemy);
+        cellsAfterAttack.addAll(attackDiag);
+      }
+      cellsAfterAttack
 
-      var cellsAfterAttack = whiteEnemyPositions
-          .map((e) => AttackDirection(
-              row: pos.row - e.row, column: pos.column - e.column))
-          .toList()
-          .asMap()
-          .map((i, e) => MapEntry(
-              i,
-              GameCell(
-                  row: whiteEnemyPositions[i].row - e.row,
-                  cellColor: CellColor.black,
-                  column: whiteEnemyPositions[i].column - e.column)))
-          .values
           .where((element) => !whitePositions
               .map((element) => element.position)
               .contains(element))
@@ -157,45 +205,45 @@ class GameField with Store {
 
       // freeCells = freeCells.where((element) => whitePositions.map((y)=>y.position).contains(element)).toList();
     } else if (checker.color == Colors.white) {
-      if(checker.isQueen){
-        freeCells = takeDiagCells(startPoint: checker.position, diag: Diag.topLeft,length: 8);
-        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.topRight,length: 8));
-        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomLeft,length: 8));
-        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomRight,length: 8));
-      }else{
-        freeCells = takeDiagCells(startPoint: checker.position, diag: Diag.topLeft,length: 1);
-        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.topRight,length: 1));
-        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomLeft,length: 1));
-        freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.bottomRight,length: 1));
-      }
-      freeCells = freeCells
-          .where((element) =>
-              !whitePositions.map((y) => y.position).contains(element))
-          .toList();
+
+      diags.forEach((key,element) {
+        final containsWhite = whitePositions.indexWhere((e) => element.contains(e.position));
+
+        if(containsWhite!=-1){
+          final cloneDiag= [...element];
+          final white = whitePositions[containsWhite];
+          final shortedDiag = cellsBeforeSecondPos(cloneDiag, white.position);
+          diags[key] = shortedDiag;
+
+
+        }
+      });
+
       var blackEnemyPositions = blackPositions
           .map((element) => element.position)
-          .where((element) => freeCells.contains(element))
+          .where((element) => diags[Diag.bottomLeft]!.contains(element) ||diags[Diag.bottomRight ]!.contains(element) ||diags[Diag.topLeft ]!.contains(element)  ||diags[Diag.topRight ]!.contains(element))
           .toList();
-      var cellsAfterAttack = blackEnemyPositions
-          .map((e) => AttackDirection(
-              row: pos.row - e.row, column: pos.column - e.column))
-          .toList()
-          .asMap()
-          .map((i, e) => MapEntry(
-              i,
-              GameCell(
-                  row: blackEnemyPositions[i].row - e.row,
-                  cellColor: CellColor.black,
-                  column: blackEnemyPositions[i].column - e.column)))
-          .values
-          .where((element) => !blackPositions
-              .map((element) => element.position)
-              .contains(element))
+      var attackDiags = blackEnemyPositions.map((e) => defineDiag(checker.position  , e)).map((e) => diags[e]).toList();
+      // attackDiags.removeWhere((element) => whitePositions.)
+
+
+      List<GameCell> cellsAfterAttack = [];
+      for (int i = 0 ;i<blackEnemyPositions.length;i++) {
+        final enemy = blackEnemyPositions[i];
+        final attackDiag = cellsAfterSecondPos(attackDiags[i]!, enemy);
+        cellsAfterAttack.addAll(attackDiag);
+      }
+      cellsAfterAttack
+
+          .where((element) => !whitePositions
+          .map((element) => element.position)
+
+          .contains(element))
           .toList();
       cellsAfterAttack = cellsAfterAttack
           .where((element) =>
-              cells.contains(element) &&
-              !whitePositions.map((e) => e.position).contains(element))
+      cells.contains(element) &&
+          !blackPositions.map((e) => e.position).contains(element))
           .toList();
       return cellsAfterAttack;
     }
@@ -205,29 +253,50 @@ class GameField with Store {
 
   Checker? getKilledCheckersAfterAttack(
       Checker checker, GameCell firstPos, GameCell secondPos) {
-    List<GameCell> freeCells = [];
-    print(firstPos);
-    print(secondPos);
-    final AttackDirection attackDirection = AttackDirection(
-        row: (secondPos.row - firstPos.row).isNegative ? -1 : 1,
-        column: (secondPos.column - firstPos.column).isNegative ? -1 : 1);
-    final enemyPos = GameCell(
-        row: firstPos.row + attackDirection.row,
-        column: firstPos.column + attackDirection.column,
-        cellColor: CellColor.black);
-    if (checker.color == Colors.white) {
-      final enemy =
-          blackPositions.where((element) => element.position == enemyPos);
-      if (enemy.isNotEmpty) {
-        return enemy.first;
+
+
+    final Map<Diag,List<GameCell>> diags = {
+      Diag.topLeft:takeDiagCells(startPoint: checker.position, diag: Diag.topLeft,length: checker.isQueen?8:1),
+      Diag.topRight:takeDiagCells(startPoint: checker.position, diag: Diag.topRight,length: checker.isQueen?8:1),
+      Diag.bottomLeft:takeDiagCells(startPoint: checker.position, diag: Diag.bottomLeft,length: checker.isQueen?8:1),
+      Diag.bottomRight:takeDiagCells(startPoint: checker.position, diag: Diag.bottomRight,length: checker.isQueen?8:1),
+    };
+    final diag = defineDiag(firstPos, secondPos);
+    if(checker.color == Colors.white){
+      var blackEnemyPositions = blackPositions
+      // .map((element) => element.position)
+          .where((element) => diags[diag]!.contains(element.position))
+          .toList();
+      if(blackEnemyPositions.isNotEmpty){
+        return blackEnemyPositions.first;
       }
-    } else if (checker.color == Colors.black) {
-      final enemy =
-          whitePositions.where((element) => element.position == enemyPos);
-      if (enemy.isNotEmpty) {
-        return enemy.first;
+    }else{
+      var blackEnemyPositions = whitePositions
+      // .map((element) => element.position)
+          .where((element) => diags[diag]!.contains(element.position))
+          .toList();
+      if(blackEnemyPositions.isNotEmpty){
+        return blackEnemyPositions.first;
       }
     }
+    // var attackDiags = blackEnemyPositions.map((e) => defineDiag(checker.position  , e)).map((e) => diags[e]).toList();
+    // List<GameCell> cellsAfterAttack = [];
+    // for (int i = 0 ;i<blackEnemyPositions.length;i++) {
+    //   final enemy = blackEnemyPositions[i];
+    //   final attackDiag = cellsAfterEnemy(attackDiags[i]!, enemy);
+    //   cellsAfterAttack.addAll(attackDiag);
+    // }
+    // cellsAfterAttack
+    //
+    //     .where((element) => !whitePositions
+    //     .map((element) => element.position)
+    //     .contains(element))
+    //     .toList();
+    // cellsAfterAttack = cellsAfterAttack
+    //     .where((element) =>
+    // cells.contains(element) &&
+    //     !blackPositions.map((e) => e.position).contains(element))
+    //     .toList();
     return null;
   }
 

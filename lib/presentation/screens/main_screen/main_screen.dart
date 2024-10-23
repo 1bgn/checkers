@@ -124,7 +124,7 @@ class _MainScreenState extends State<MainScreen> {
                                                .selectBlackChecker(i);
                                          },
                                          child: Container(
-                                           child: SvgPicture.asset(e.isQueen?"assets/images/queen.svg":"assets/images/white_checker.svg",),
+                                           child: Center(child: SvgPicture.asset(e.isQueen?"assets/images/black_queen.svg":"assets/images/white_checker.svg",)),
 
                                            margin: EdgeInsets.only(
                                                left: coords.x - cellWidth,
@@ -156,7 +156,7 @@ class _MainScreenState extends State<MainScreen> {
                                                top: coords.y - cellWidth),
                                            width: cellWidth,
                                            height: cellWidth,
-                                           child: SvgPicture.asset(e.isQueen?"assets/images/queen.svg":"assets/images/white_checker.svg",),
+                                           child: Center(child: SvgPicture.asset(e.isQueen?"assets/images/white_queen.svg":"assets/images/white_checker.svg",)),
                                            decoration: BoxDecoration(
                                              color: Colors.white,
                                              shape: BoxShape.circle,
