@@ -25,10 +25,51 @@ mixin _$MobxMainScreenController on _MobxMainScreenController, Store {
     });
   }
 
+  late final _$timeCounterAtom =
+      Atom(name: '_MobxMainScreenController.timeCounter', context: context);
+
+  @override
+  int get timeCounter {
+    _$timeCounterAtom.reportRead();
+    return super.timeCounter;
+  }
+
+  @override
+  set timeCounter(int value) {
+    _$timeCounterAtom.reportWrite(value, super.timeCounter, () {
+      super.timeCounter = value;
+    });
+  }
+
+  late final _$winnerAtom =
+      Atom(name: '_MobxMainScreenController.winner', context: context);
+
+  @override
+  Color? get winner {
+    _$winnerAtom.reportRead();
+    return super.winner;
+  }
+
+  @override
+  set winner(Color? value) {
+    _$winnerAtom.reportWrite(value, super.winner, () {
+      super.winner = value;
+    });
+  }
+
+  late final _$gameOverAsyncAction =
+      AsyncAction('_MobxMainScreenController.gameOver', context: context);
+
+  @override
+  Future<void> gameOver(Color winner) {
+    return _$gameOverAsyncAction.run(() => super.gameOver(winner));
+  }
+
   @override
   String toString() {
     return '''
-
+timeCounter: ${timeCounter},
+winner: ${winner}
     ''';
   }
 }

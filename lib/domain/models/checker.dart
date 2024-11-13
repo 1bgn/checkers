@@ -1,6 +1,7 @@
-import 'package:checker/presentation/domain/models/checker_position.dart';
-import 'package:checker/presentation/domain/models/game_cell.dart';
+
 import 'package:flutter/material.dart';
+
+import 'game_cell.dart';
 
 class Checker {
   final Color color;
