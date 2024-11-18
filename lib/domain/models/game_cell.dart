@@ -1,6 +1,6 @@
 import 'checker_position.dart';
 
-class GameCell{
+class GameCell implements Comparable<GameCell>{
   final int row;
   final int column;
   final CellColor cellColor;
@@ -49,9 +49,21 @@ class GameCell{
   @override
   int get hashCode => row.hashCode ^ column.hashCode ^ cellColor.hashCode;
 
+
+
   @override
   String toString() {
     return 'GameCell{row: $row, column: $column, cellColor: $cellColor}';
+  }
+
+  @override
+  int compareTo(GameCell other) {
+    if(column == other.column && row == other.row){
+      return 0;
+    }else if(column>other.column && row >other.column){
+      return 1;
+    }
+    return -1;
   }
 }
 enum CellColor {

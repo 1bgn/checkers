@@ -1,4 +1,8 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'dart:math' as math;
 
 import 'checker.dart';
 import 'package:mobx/mobx.dart';
@@ -92,8 +96,12 @@ class GameField with Store {
           .toList();
       GameCell? nearEnemyPos =findTwiceEnemyDiagCells(busyPositions);
 
+       ;
+      return diags.map((d,p){
+        var res = p.takeWhile((e)=>e!=nearEnemyPos).toList();
 
-      return diags.values
+        return MapEntry(d, res);
+      }).values
           .expand((element) => element)
           .takeWhile((value) => value != nearEnemyPos)
           .where((element) =>
@@ -139,7 +147,6 @@ class GameField with Store {
         // freeCells = takeDiagCells(startPoint: checker.position, diag: Diag.topLeft,length: 1);
         // freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.topRight,length: 1));
       }
-
       diags.forEach((key, element) {
         final containsBlack =
             whitePositions.indexWhere((e) => element.contains(e.position));
@@ -162,11 +169,12 @@ class GameField with Store {
           .toList();
       GameCell? nearEnemyPos = findTwiceEnemyDiagCells(busyPositions);
 
-
-      print("ittt");
-      return diags.values
+      return diags.map((d,p){
+        var res = p.takeWhile((e)=>e!=nearEnemyPos && !whitePositions.map((k)=>k.position).contains(e)).toList();
+        return MapEntry(d, res);
+      }).values
           .expand((element) => element)
-          .takeWhile((value) => value != nearEnemyPos)
+          // .takeWhile((value) => whitePositions.map((k)=>k.position).contains(value))
           .where((element) =>
               !blackPositions.map((y) => y.position).contains(element) &&
               !whitePositions.map((y) => y.position).contains(element))
@@ -243,6 +251,22 @@ class GameField with Store {
 
     return enemyPoints;
   }
+  GameCell cellAfterSecondPos(Diag diag, GameCell secondPos) {
+  switch(diag) {
+    case Diag.topLeft:
+      return GameCell(row: secondPos.row-1, column: secondPos.column-1, cellColor: CellColor.black);
+    case Diag.topRight:
+      return GameCell(row: secondPos.row-1, column: secondPos.column+1, cellColor: CellColor.black);
+
+    case Diag.bottomLeft:
+      return GameCell(row: secondPos.row+1, column: secondPos.column-1, cellColor: CellColor.black);
+
+    case Diag.bottomRight:
+      return GameCell(row: secondPos.row+1, column: secondPos.column+1, cellColor: CellColor.black);
+
+  }
+
+  }
 
   List<GameCell> cellsBeforeSecondPos(
       List<GameCell> diag, GameCell secondPoint) {
@@ -270,6 +294,21 @@ class GameField with Store {
     }
     return false;
   }
+  List<GameCell> sortPointsByDistantionPoint(GameCell gameCell,List<GameCell> cells){
+    SplayTreeMap<double,GameCell> distancePoints = SplayTreeMap();
+    for (var e in cells) {
+      final distance = distanceBetweenPoints(gameCell, e);
+      distancePoints.putIfAbsent(distance, ()=>e);
+    }
+    print("distancePoints $distancePoints");
+
+
+
+    return distancePoints.values.toList();
+  }
+  double distanceBetweenPoints(GameCell point1,GameCell point2){
+    return math.sqrt(math.pow(point1.column-point2.column, 2)+math.pow(point1.row-point2.row, 2));
+  }
   GameCell? findTwiceEnemyDiagCells(List<GameCell> positions) {
     for (var e1 in positions) {
       for (var e2 in positions) {
@@ -277,7 +316,7 @@ class GameField with Store {
           return e1;
         }
       }}
- 
+
     return null;
   }
   List<T> rotate<T>(List<T> list, int v) {
@@ -285,7 +324,22 @@ class GameField with Store {
     var i = v % list.length;
     return list.sublist(i)..addAll(list.sublist(0, i));
   }
+  Map<Diag,List<GameCell>> groupByDiag(GameCell startPoint,List<GameCell> cells){
+    final diags = <Diag,List<GameCell>>{};
+    for (var cell in cells) {
+      final diag = defineDiag(startPoint, cell);
+      if(diags.containsKey(diag)){
+        final diag_cells = diags[diag]!;
+        diag_cells.add(cell);
+        diags.update(diag, (k)=>diags[diag]!);
+      }else{
+        diags.putIfAbsent(diag, ()=>[cell]);
+      }
+    }
+    return diags;
+  }
   List<GameCell> getFreeCellsAfterAttack(Checker checker) {
+
     final Map<Diag, List<GameCell>> diags = {
       Diag.topLeft: takeDiagCells(
           startPoint: checker.position,
@@ -304,109 +358,99 @@ class GameField with Store {
           diag: Diag.bottomRight,
           length: checker.isQueen ? 8 : 2),
     };
-
+    var whitePoints = whitePositions
+        .map((element) => element.position)
+        .where((element) =>
+    diags[Diag.bottomLeft]!.contains(element) ||
+        diags[Diag.bottomRight]!.contains(element) ||
+        diags[Diag.topLeft]!.contains(element) ||
+        diags[Diag.topRight]!.contains(element))
+        .toList();
+    var blackPoints = blackPositions
+        .map((element) => element.position)
+        .where((element) =>
+    diags[Diag.bottomLeft]!.contains(element) ||
+        diags[Diag.bottomRight]!.contains(element) ||
+        diags[Diag.topLeft]!.contains(element) ||
+        diags[Diag.topRight]!.contains(element))
+        .toList();
     if (checker.color == Colors.black) {
-      var whiteEnemyPositions = whitePositions
-          .map((element) => element.position)
-          .where((element) =>
-              diags[Diag.bottomLeft]!.contains(element) ||
-              diags[Diag.bottomRight]!.contains(element) ||
-              diags[Diag.topLeft]!.contains(element) ||
-              diags[Diag.topRight]!.contains(element))
-          .toList();
-      // final nearEnemy = findTwiceEnemyDiagCells(whiteEnemyPositions);
-      //       whiteEnemyPositions =
-      //           whiteEnemyPositions.takeWhile((value) => value != nearEnemy).toList();
 
-      var attackDiags = whiteEnemyPositions
-          .map((e) => defineDiag(checker.position, e))
-          .map((e) => diags[e])
-          .toList();
-      print("CDSVDSV ${attackDiags}");
-      List<GameCell> cellsAfterAttack = [];
 
-      for (int i = 0; i < whiteEnemyPositions.length; i++) {
-        final enemy = whiteEnemyPositions[i];
-        var attackDiag = cellsAfterSecondPos(attackDiags[i]!, enemy);
+      var groupedEnemies = groupByDiag(checker.position, whitePoints);
 
-        cellsAfterAttack.addAll(attackDiag);
-      }
+      groupedEnemies = groupedEnemies.map((i,v) {
+        final twiceEnemy = findTwiceEnemyDiagCells(v);
+        var res =  checker.isQueen?sortPointsByDistantionPoint(checker.position, v):sortPointsByDistantionPoint(checker.position, v).reversed.toList();
+        res = res.takeWhile((o)=>o!=twiceEnemy).toList();
 
-      cellsAfterAttack = cellsAfterAttack
-          .where((element) => !whitePositions
-              .map((element) => element.position)
-              .contains(element))
-          .toList();
-      print("yyyy $cellsAfterAttack");
-      cellsAfterAttack = cellsAfterAttack
-          .where((element) =>
-              cells.contains(element) &&
-              !blackPositions.map((e) => e.position).contains(element) &&
-              !whitePositions.map((e) => e.position).contains(element))
-          .toList();
+        if(res.length>1){
+          res = [res.first];
+        }
+        if(twiceEnemy!=null ){
+          res = res.where((e)=>cellAfterSecondPos(i, cellAfterSecondPos(i, checker.position))!=e ).map((e)=>cellAfterSecondPos(i, e)).toList();
+        }else if(!checker.isQueen){
+          res = res.where((e)=>cellAfterSecondPos(i, cellAfterSecondPos(i, checker.position))!=e  && !blackPoints.contains(cellAfterSecondPos(i, e) )  ).map((e)=>cellAfterSecondPos(i, e)).toList();
+        }else if(checker.isQueen){
+          res = res.where((e)=> !blackPoints.contains(cellAfterSecondPos(i, cellAfterSecondPos(i, checker.position))) ).map((e)=>cellAfterSecondPos(i, e)).toList();
 
-      return cellsAfterAttack;
+        } else{
+          res = res.map((e)=>cellAfterSecondPos(i, e)).toList();
+        }
+
+        if(res.isNotEmpty && checker.isQueen){
+          res.addAll(takeDiagCells(startPoint: res.last, diag: i));
+          res = res.takeWhile((e)=>!whitePoints.contains(e)).toList();
+        }
+        res=res.takeWhile((e)=>!blackPoints.contains(cellAfterSecondPos(i, checker.position))).takeWhile((e)=>!blackPoints.contains(e)).where((e)=>e.column<=8&&e.row<=8 && e.column>=1&&e.row>=1 ).toList();
+
+        return MapEntry(i, res);
+
+      });
+
+      return groupedEnemies.values.expand((e)=>e).toList();
 
       // freeCells = freeCells.where((element) => whitePositions.map((y)=>y.position).contains(element)).toList();
     } else if (checker.color == Colors.white) {
-      var blackEnemyPositions = blackPositions
-          .map((element) => element.position)
-          .where((element) =>
-              diags[Diag.bottomLeft]!.contains(element) ||
-              diags[Diag.bottomRight]!.contains(element) ||
-              diags[Diag.topLeft]!.contains(element) ||
-              diags[Diag.topRight]!.contains(element))
-          .toList();
-      final nearEnemy = findTwiceEnemyDiagCells(blackEnemyPositions);
-      if(nearEnemy!=null){
-        blackEnemyPositions =
-            blackEnemyPositions.takeWhile((value) => value != nearEnemy).toList();
-      }
-      // for (int i = 0; i < blackEnemyPositions.length; i++) {
-      //   if (i + 1 < blackEnemyPositions.length) {
-      //     final g1 = blackEnemyPositions[i];
-      //     final g2 = blackEnemyPositions[i + 1];
-      //     if (isNearByDiagCells(g1, g2)) {
-      //       blackEnemyPositions =
-      //           blackEnemyPositions.takeWhile((value) => value != g1).toList();
-      //     }
-      //   }
-      // }
-      var attackDiags = blackEnemyPositions
-          .map((e) => defineDiag(checker.position, e))
-          .map((e) => diags[e])
-          .toList();
-      // attackDiags.removeWhere((element) => whitePositions.)
 
-      List<GameCell> cellsAfterAttack = [];
-      for (int i = 0; i < blackEnemyPositions.length; i++) {
-        final enemy = blackEnemyPositions[i];
-        final attackDiag = cellsAfterSecondPos(attackDiags[i]!, enemy);
-        cellsAfterAttack.addAll(attackDiag);
-      }
-      diags.forEach((key, element) {
-        final containsWhite =
-            whitePositions.indexWhere((e) => element.contains(e.position));
+      var groupedEnemies = groupByDiag(checker.position, blackPoints);
 
-        if (containsWhite != -1) {
-          final cloneDiag = [...element];
-          final white = whitePositions[containsWhite];
-          final shortedDiag = cellsBeforeSecondPos(cloneDiag, white.position);
-          diags[key] = shortedDiag;
+      groupedEnemies = groupedEnemies.map((i,v) {
+        var twiceEnemy = findTwiceEnemyDiagCells(v);
+
+        var res =  checker.isQueen?sortPointsByDistantionPoint(checker.position, v):sortPointsByDistantionPoint(checker.position, v).reversed.toList();
+        res = res.takeWhile((o)=>o!=twiceEnemy).toList();
+
+        if(res.length>1){
+          res = [res.first];
         }
+        res = res.takeWhile((o)=>o!=twiceEnemy).toList();
+        if(twiceEnemy!=null ){
+          res = res.where((e)=>cellAfterSecondPos(i, cellAfterSecondPos(i, checker.position))!=e ).map((e)=>cellAfterSecondPos(i, e)).toList();
+        }else if(!checker.isQueen){
+          res = res.where((e)=>cellAfterSecondPos(i, cellAfterSecondPos(i, checker.position))!=e  && !whitePoints.contains(cellAfterSecondPos(i, e) )  ).map((e)=>cellAfterSecondPos(i, e)).toList();
+        }else if(checker.isQueen){
+          res = res.where((e)=> !whitePoints.contains(cellAfterSecondPos(i, cellAfterSecondPos(i, checker.position))) ).map((e)=>cellAfterSecondPos(i, e)).toList();
+
+        }
+
+        else{
+          res = res.map((e)=>cellAfterSecondPos(i, e)).toList();
+        }
+
+        if(res.isNotEmpty && checker.isQueen && !blackPoints.contains(cellAfterSecondPos(i, checker.position))){
+          res.addAll(takeDiagCells(startPoint: res.last, diag: i));
+          res = res.takeWhile((e)=>!blackPoints.contains(e) ).toList();
+
+        }
+         res=res.takeWhile((e)=>!whitePoints.contains(cellAfterSecondPos(i, checker.position))).takeWhile((e)=>!whitePoints.contains(e)).where((e)=>e.column<=8&&e.row<=8 && e.column>=1&&e.row>=1 ).toList();
+
+        return MapEntry(i, res);
+
       });
-      cellsAfterAttack
-          .where((element) => !whitePositions
-              .map((element) => element.position)
-              .contains(element))
-          .toList();
-      cellsAfterAttack = cellsAfterAttack
-          .where((element) =>
-              cells.contains(element) &&
-              !blackPositions.map((e) => e.position).contains(element) &&
-              !whitePositions.map((e) => e.position).contains(element))
-          .toList();
-      return cellsAfterAttack;
+    print("12324323 ${groupedEnemies}");
+
+      return groupedEnemies.values.expand((e)=>e).toList();
     }
     // cells.forEach((element) {element.})
     return [];
@@ -492,24 +536,24 @@ class GameField with Store {
     }
   }
 
-  bool hasOtherKiller(Checker? checker) {
-    if (checker?.color == Colors.white) {
-      final whitePositions = [...this.whitePositions];
-      whitePositions.removeWhere((element) =>
-          element.position.column == checker!.position.column &&
-          element.position.row == checker.position.row);
-      return whitePositions
-          .any((element) => getFreeCellsAfterAttack(element).isNotEmpty);
-    } else if (checker?.color == Colors.black) {
-      final blackPositions = [...this.blackPositions];
-      blackPositions.removeWhere((element) =>
-          element.position.column == checker!.position.column &&
-          element.position.row == checker!.position.row);
-      return blackPositions
-          .any((element) => getFreeCellsAfterAttack(element).isNotEmpty);
-    }
-    return false;
-  }
+  // bool hasOtherKiller(Checker? checker) {
+  //   if (checker?.color == Colors.white) {
+  //     final whitePositions = [...this.whitePositions];
+  //     whitePositions.removeWhere((element) =>
+  //         element.position.column == checker!.position.column &&
+  //         element.position.row == checker.position.row);
+  //     return whitePositions
+  //         .any((element) => getFreeCellsAfterAttack(element).isNotEmpty);
+  //   } else if (checker?.color == Colors.black) {
+  //     final blackPositions = [...this.blackPositions];
+  //     blackPositions.removeWhere((element) =>
+  //         element.position.column == checker!.position.column &&
+  //         element.position.row == checker!.position.row);
+  //     return blackPositions
+  //         .any((element) => getFreeCellsAfterAttack(element).isNotEmpty);
+  //   }
+  //   return false;
+  // }
 
   GameField(
       {required this.cells,

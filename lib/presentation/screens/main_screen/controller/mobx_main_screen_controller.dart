@@ -227,7 +227,6 @@ abstract class _MobxMainScreenController with Store {
             position:
             GameCell(row: row1, column: 4, cellColor: CellColor.black)),
         Checker(
-          isQueen: true,
             color: color,
             position:
             GameCell(row: row1, column: 6, cellColor: CellColor.black)),
@@ -255,18 +254,18 @@ abstract class _MobxMainScreenController with Store {
             GameCell(row: row2, column: 7, cellColor: CellColor.black))
       ]);
       cells.addAll([
-        // Checker(
-        //     color: color,
-        //     position:
-        //     GameCell(row: row3, column: 2, cellColor: CellColor.black)),
-        // Checker(
-        //     color: color,
-        //     position:
-        //     GameCell(row: row3, column: 4, cellColor: CellColor.black)),
-        // Checker(
-        //     color: color,
-        //     position:
-        //     GameCell(row: row3, column: 6, cellColor: CellColor.black)),
+        Checker(
+            color: color,
+            position:
+            GameCell(row: row3, column: 2, cellColor: CellColor.black)),
+        Checker(
+            color: color,
+            position:
+            GameCell(row: row3, column: 4, cellColor: CellColor.black)),
+        Checker(
+            color: color,
+            position:
+            GameCell(row: row3, column: 6, cellColor: CellColor.black)),
         Checker(
             color: color,
             position:
@@ -277,10 +276,10 @@ abstract class _MobxMainScreenController with Store {
       int row2 = 2;
       int row3 = 3;
       cells.addAll([
-        // Checker(
-        //     color: color,
-        //     position:
-        //     GameCell(row: row1, column: 1, cellColor: CellColor.black,)),
+        Checker(
+            color: color,
+            position:
+            GameCell(row: row1, column: 1, cellColor: CellColor.black,)),
         Checker(
             color: color,
             position:
@@ -289,10 +288,10 @@ abstract class _MobxMainScreenController with Store {
             color: color,
             position:
             GameCell(row: row1, column: 5, cellColor: CellColor.black)),
-        // Checker(
-        //     color: color,
-        //     position:
-        //     GameCell(row: row1, column: 7, cellColor: CellColor.black))
+        Checker(
+            color: color,
+            position:
+            GameCell(row: row1, column: 7, cellColor: CellColor.black))
       ]);
       cells.addAll([
         Checker(
@@ -317,7 +316,7 @@ abstract class _MobxMainScreenController with Store {
           isQueen: true,
             color: color,
             position:
-            GameCell(row: row3+5, column: 1+3, cellColor: CellColor.black)),
+            GameCell(row: row3, column: 1, cellColor: CellColor.black)),
         Checker(
             color: color,
             position:
@@ -327,7 +326,6 @@ abstract class _MobxMainScreenController with Store {
             position:
             GameCell(row: row3, column: 5, cellColor: CellColor.black)),
         Checker(
-          isQueen: true,
             color: color,
             position:
             GameCell(row: row3, column: 7, cellColor: CellColor.black))
