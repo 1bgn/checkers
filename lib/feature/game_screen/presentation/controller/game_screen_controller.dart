@@ -14,7 +14,9 @@ class GameScreenController extends Cubit<GameScreenState> {
   GameScreenController(this._gameScreenService)
       : super(const GameScreenState());
   final IGameScreenService _gameScreenService;
-
+  void nextTime(){
+    emit(state.copyWith(timeCounter: state.timeCounter+1));
+  }
   Future<void> init() async {
 
     emit(state.copyWith(isLoading: true));

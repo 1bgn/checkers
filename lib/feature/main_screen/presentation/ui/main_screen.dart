@@ -13,6 +13,7 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: BlocProvider(
         create: (context) => GameScreenController(getIt()),
         child: BlocBuilder<GameScreenController,GameScreenState>(builder: (context, state) {

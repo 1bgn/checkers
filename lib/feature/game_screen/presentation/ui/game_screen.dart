@@ -28,12 +28,13 @@ class _GameScreenState extends State<GameScreen> {
   StreamSubscription? timer;
   @override
   void initState() {
-    context.read<GameScreenController>().init();
+    final controller = context.read<GameScreenController>();
+    controller.init();
     // mobxMainScreenController.onGameOver = onGameOver;
     // mobxMainScreenController.init();
-    // timer = Stream.periodic(Duration(seconds: 1)).listen((event) {
-    //   mobxMainScreenController.timeCounter++;
-    // });
+    timer = Stream.periodic(Duration(seconds: 1)).listen((event) {
+      controller.nextTime();
+    });
     // Stream.periodic(Duration(seconds: 1)).listen((event) {
     //   if(mobxMainScreenController.isWin()!=null){
     //     mobxMainScreenController.gameOver(mobxMainScreenController.isWin()!);
