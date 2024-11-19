@@ -8,8 +8,8 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:checker/core/di/injector_module.dart' as _i432;
 import 'package:checker/core/routing/go_router_provider.dart' as _i843;
-import 'package:checker/di/injector_module.dart' as _i640;
 import 'package:checker/feature/game_screen/application/game_screen_service.dart'
     as _i327;
 import 'package:checker/feature/game_screen/application/igame_screen_service.dart'
@@ -37,4 +37,4 @@ extension GetItInjectableX on _i174.GetIt {
   }
 }
 
-class _$InjectorModule extends _i640.InjectorModule {}
+class _$InjectorModule extends _i432.InjectorModule {}

@@ -31,16 +31,16 @@ class GameScreenController extends Cubit<GameScreenState> {
   GameField get gameField => state.gameField;
 
   void nextSelectedBlackCheckerPosition(GameCell position) {
-    final index = state.gameField.blackPositions
+    final index = gameField.blackPositions
         .indexWhere((element) => element.isSelected);
 
-    final checker = state.gameField.blackPositions[index];
+    final checker = gameField.blackPositions[index];
     final firstPosition = checker.position;
     final secondPosition = position;
-    final blackPositions = [...state.gameField.blackPositions];
+    final blackPositions = [...gameField.blackPositions];
     blackPositions[index] = checker.copyWith(position: position);
     emit(state.copyWith(
-        gameField: state.gameField
+        gameField: gameField
             .copyWith(blackPositions: blackPositions, lightedPositions: [])));
     // unselectWhiteCheckers();
     // state.gameField!.lightedPositions.clear();
@@ -59,6 +59,7 @@ class GameScreenController extends Cubit<GameScreenState> {
     }
 
     //Конец хода
+    unselectBlackCheckers();
     if (killedChecker != null &&
         _gameScreenService
             .getFreeCellsAfterAttack(
@@ -153,6 +154,7 @@ class GameScreenController extends Cubit<GameScreenState> {
     }
 
     //Конец хода
+    unselectWhiteCheckers();
     if (killedChecker != null &&
        _gameScreenService. getFreeCellsAfterAttack(checker: gameField.whitePositions[index],cells: gameField.cells,blackPositions: gameField.blackPositions,whitePositions: gameField.whitePositions)
             .isNotEmpty) {
@@ -175,6 +177,11 @@ class GameScreenController extends Cubit<GameScreenState> {
     }
     unselectWhiteCheckers();
     unselectBlackCheckers();
+    final canOtherAttack = anyHasAttack(index);
+    if(canOtherAttack!=null && canOtherAttack!=-1 ){
+      selectBlackChecker(canOtherAttack);
+      return;
+    }
     final blackPositions = [...state.gameField.blackPositions];
     blackPositions[index] = blackPositions[index].copyWith(isSelected: true);
     emit(state.copyWith(
@@ -196,6 +203,36 @@ class GameScreenController extends Cubit<GameScreenState> {
         "_gameField!.attackLightedPositions ${state.gameField!.attackLightedPositions}");
     // print("${_gameField!.lightedPositions } ${_gameField!.attackLightedPositions}");
   }
+  int? anyHasAttack(int checkerId ){
+
+    final positions = gameField.currentSide==Colors.white?[...gameField.whitePositions]:[...gameField.blackPositions];
+    // int index = positions.indexWhere((e)=>e==currentChecker);
+    // final c = positions.removeAt(index);
+    // positions.insert(0, c);
+    final res = _gameScreenService.getFreeCellsAfterAttack(
+        checker: positions[checkerId],
+        cells: state.gameField.cells,
+        blackPositions: state.gameField.blackPositions,
+        whitePositions: state.gameField.whitePositions);
+    if(res.isEmpty){
+      for (int i = 0 ;i<positions.length;i++) {
+        final attackPositions =  _gameScreenService.getFreeCellsAfterAttack(
+            checker: positions[i],
+            cells: state.gameField.cells,
+            blackPositions: state.gameField.blackPositions,
+            whitePositions: state.gameField.whitePositions);
+        if(attackPositions.isNotEmpty){
+          if(positions[i]!=positions[checkerId]){
+            return i;
+          }else{
+            return -1;
+          }
+        }
+      }
+    }
+
+    return null;
+  }
 
   void selectWhiteChecker(
     int index,
@@ -206,26 +243,32 @@ class GameScreenController extends Cubit<GameScreenState> {
               .copyWith(attackLightedPositions: [], lightedPositions: [])));
       return;
     }
+
     unselectWhiteCheckers();
     unselectBlackCheckers();
-    final whitePositions = [...state.gameField.whitePositions];
-    whitePositions[index] = whitePositions[index].copyWith(isSelected: true);
+    final canOtherAttack = anyHasAttack(index);
+    if(canOtherAttack!=null && canOtherAttack!=-1 ){
+      selectWhiteChecker(canOtherAttack);
+      return;
+    }
+    final whitePositions = [...gameField.whitePositions];
+    whitePositions[index] = gameField.whitePositions[index].copyWith(isSelected: true);
     emit(state.copyWith(
         gameField: state.gameField.copyWith(
             whitePositions: whitePositions,
             lightedPositions: [],
             attackLightedPositions: _gameScreenService.getFreeCellsAfterAttack(
-                checker: state.gameField.whitePositions[index],
+                checker: gameField.whitePositions[index],
                 cells: state.gameField.cells,
                 blackPositions: state.gameField.blackPositions,
                 whitePositions: state.gameField.whitePositions))));
     if (state.gameField.attackLightedPositions.isEmpty) {
       emit(state.copyWith(
-          gameField: state.gameField.copyWith(
+          gameField: gameField.copyWith(
               lightedPositions: _gameScreenService.getFreeCells(
-                  cells: state.gameField.cells,
-                  blackPositions: state.gameField.blackPositions,
-                  whitePositions: state.gameField.whitePositions,
+                  cells: gameField.cells,
+                  blackPositions: gameField.blackPositions,
+                  whitePositions: gameField.whitePositions,
                   checker: state.gameField.whitePositions[index]))));
     }
     print(
@@ -285,7 +328,7 @@ class GameScreenController extends Cubit<GameScreenState> {
       int row3 = 8;
       cells.addAll([
         Checker(
-            isQueen: true,
+            isQueen: false,
             color: color,
             position:
                 GameCell(row: row1, column: 2, cellColor: CellColor.black)),
@@ -383,7 +426,7 @@ class GameScreenController extends Cubit<GameScreenState> {
       ]);
       cells.addAll([
         Checker(
-            isQueen: true,
+            isQueen: false,
             color: color,
             position:
                 GameCell(row: row3, column: 1, cellColor: CellColor.black)),
