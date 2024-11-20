@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/di/di_container.dart';
 import '../../controller/main_screen_controller.dart';
 import '../../state/main_screen_state.dart';
 
@@ -10,7 +11,7 @@ class BottomNavigationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => MainScreenController(),
+      create: (context) => MainScreenController(getIt()),
       child: BlocBuilder<MainScreenController  , MainScreenState>(
         builder: (context, state) {
           return NavigationBar(
