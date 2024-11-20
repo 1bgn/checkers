@@ -1,17 +1,20 @@
 
 import 'package:checker/core/routing/route_name.dart';
 import 'package:checker/feature/create_new_game/presentation/ui/create_new_game_screen.dart';
+import 'package:checker/feature/main_screen/presentation/controller/main_screen_controller.dart';
 import 'package:checker/feature/select_new_game/presentation/ui/select_new_game_screen.dart';
 import 'package:checker/feature/main_screen/presentation/ui/main_screen.dart';
 import 'package:checker/feature/server_list_screeen/domain/model/server_game_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../feature/game_screen/presentation/ui/game_field_screen.dart';
 import '../../feature/game_screen/presentation/ui/game_screen.dart';
 import '../../feature/server_list_screeen/presentation/game_list_screen.dart';
+import '../di/di_container.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey(debugLabel: 'root');
 final GlobalKey<StatefulNavigationShellState> _shellNavigatorKey = GlobalKey(debugLabel: 'shell');
@@ -36,7 +39,10 @@ class GoRouterProvider{
           return NoTransitionPage(child: GameListScreen(isPrivate: true,key: UniqueKey(),));
         }),]),
       ], builder: (context,state,child){
-        return  MainScreen(child: child);
+        return  BlocProvider(
+  create: (context) => MainScreenController(getIt()),
+  child: MainScreen(child: child),
+);
       }),
       // ShellRoute(routes: [
       //
