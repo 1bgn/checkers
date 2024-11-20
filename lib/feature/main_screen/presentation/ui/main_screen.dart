@@ -5,21 +5,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/di/di_container.dart';
+import 'widget/bottom_navigation_widget.dart';
 
-class MainScreen extends StatelessWidget {
+class MainScreen extends StatefulWidget {
   final Widget child;
 
   const MainScreen({super.key, required this.child});
 
   @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: BottomNavigationWidget(),
       backgroundColor: Colors.white,
-      body: BlocProvider(
-        create: (context) => GameScreenController(getIt()),
-        child: BlocBuilder<GameScreenController,GameScreenState>(builder: (context, state) {
-          return child;
-        }),
+      body: SafeArea(
+        child: widget.child
+        // BlocProvider(
+        //   create: (context) => GameScreenController(getIt()),
+        //   child: BlocBuilder<GameScreenController,GameScreenState>(builder: (context, state) {
+        //     return child;
+        //   }),
+        // ),
       ),
     );
   }

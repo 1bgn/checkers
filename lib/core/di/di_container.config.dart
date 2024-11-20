@@ -30,8 +30,8 @@ extension GetItInjectableX on _i174.GetIt {
       environmentFilter,
     );
     final injectorModule = _$InjectorModule();
-    gh.factory<_i843.GoRouterProvider>(() => _i843.GoRouterProvider());
     gh.singleton<_i361.Dio>(() => injectorModule.getDio());
+    gh.lazySingleton<_i843.GoRouterProvider>(() => _i843.GoRouterProvider());
     gh.lazySingleton<_i762.IGameScreenService>(() => _i327.GameScreenService());
     return this;
   }

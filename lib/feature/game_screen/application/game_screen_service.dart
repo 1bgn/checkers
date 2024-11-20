@@ -465,7 +465,7 @@ cells: cells,
         return MapEntry(i, res);
       });
 
-      return groupedEnemies.values.expand((e) => e).toList();
+      return groupedEnemies.values.expand((e) => e).where((e)=>!whitePoints.contains(e) && !blackPoints.contains(e)).toList();
 
       // freeCells = freeCells.where((element) => whitePositions.map((y)=>y.position).contains(element)).toList();
     } else if (checker.color == Colors.white) {
@@ -530,7 +530,7 @@ cells: cells,
       });
       print("12324323 ${groupedEnemies}");
 
-      return groupedEnemies.values.expand((e) => e).toList();
+      return groupedEnemies.values.expand((e) => e).where((e)=>!whitePoints.contains(e) && !blackPoints.contains(e)).toList();
     }
     // cells.forEach((element) {element.})
     return [];

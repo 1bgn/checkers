@@ -17,13 +17,13 @@ class WhiteChecker extends StatelessWidget{
           child: Container(
             margin:EdgeInsets.all(isSelected?3:0),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Colors.grey,
               shape: BoxShape.circle,
             ),
             child: SvgPicture.asset(
               isQueen
-                  ? "assets/images/white_queen.svg"
-                  : "assets/images/white_checker.svg",
+                  ? "assets/images/white_cat_queen.svg"
+                  : "assets/images/white_cat_checker.svg",
             
             ),
           ),

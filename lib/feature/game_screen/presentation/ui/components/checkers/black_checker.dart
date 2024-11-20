@@ -22,8 +22,8 @@ class BlackChecker extends StatelessWidget{
             ),
             child: SvgPicture.asset(
               isQueen
-                  ? "assets/images/black_queen.svg"
-                  : "assets/images/black_checker.svg",
+                  ? "assets/images/black_cat_queen.svg"
+                  : "assets/images/black_cat_checker.svg",
             
             ),
           ),

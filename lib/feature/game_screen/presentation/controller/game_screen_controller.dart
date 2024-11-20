@@ -51,7 +51,7 @@ class GameScreenController extends Cubit<GameScreenState> {
     emit(state.copyWith(
         gameField: state.gameField.copyWith(attackLightedPositions: [])));
 
-    if (position.row == 8) {
+    if (position.row == 1) {
       blackPositions[index] =
           checker.copyWith(isQueen: true, position: position);
       emit(state.copyWith(
@@ -63,7 +63,7 @@ class GameScreenController extends Cubit<GameScreenState> {
     if (killedChecker != null &&
         _gameScreenService
             .getFreeCellsAfterAttack(
-                checker: gameField.whitePositions[index],
+                checker: gameField.blackPositions[index],
                 whitePositions: gameField.whitePositions,
                 blackPositions: gameField.blackPositions,
                 cells: gameField.cells)
