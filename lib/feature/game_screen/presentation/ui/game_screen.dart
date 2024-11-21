@@ -9,19 +9,17 @@ import '../../../../core/di/di_container.dart';
 class GameScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-        create: (context) => GameScreenController(getIt()),
-        child: Scaffold(
-          backgroundColor: Colors.white,
+    return Scaffold(
+      backgroundColor: Colors.white,
 
-          appBar: AppBar(
-            backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
 
-            title: Text("Одиночная игра",),
-          ),
-          body: SafeArea(
-            child: GameFieldScreen(),
-          ),
-        ));
+        title: Text("Одиночная игра",),
+      ),
+      body: SafeArea(
+        child: GameFieldScreen(),
+      ),
+    );
   }
 }

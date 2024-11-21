@@ -15,7 +15,7 @@ dependencies:
   dio: ^5.7.0
   injectable: ^2.5.0
   retrofit: ^4.4.1
-
+  overlay_support: ^2.1.0
   flutter_mobx: ^2.2.1+1
   shimmer: ^3.0.0
   localstorage: ^5.0.0

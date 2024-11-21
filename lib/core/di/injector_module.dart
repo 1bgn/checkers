@@ -10,9 +10,7 @@ abstract class InjectorModule {
   @singleton
   Dio getDio() {
     final dio = Dio();
-    dio.options.validateStatus = (int? status) {
-      return true;
-    };
+
     dio.interceptors.add(PrettyDioLogger());
 
     dio.options.headers["Accept"] = "application/json";

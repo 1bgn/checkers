@@ -18,4 +18,12 @@ class MainScreenController extends Cubit<MainScreenState>{
     emit(state.copyWith(currentUser: user));
     return user;
   }
+  void saveLocalUser(MainUser mainUser){
+    _iMainService.saveUser(mainUser);
+    emit(state.copyWith(currentUser: mainUser));
+
+  }
+  MainUser? getLocalUser(){
+    return _iMainService.getLocalUser();
+  }
 }

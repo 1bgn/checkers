@@ -13,4 +13,15 @@ class MainService implements IMainService{
     return _iMainRepository.registerUser(registerUser);
   }
 
+  @override
+  MainUser? getLocalUser() {
+    return _iMainRepository.getUser();
+
+  }
+
+  @override
+  void saveUser(MainUser userResponse) {
+   return _iMainRepository.saveUser(userResponse);
+  }
+
 }

@@ -1,5 +1,6 @@
 import 'package:checker/feature/game_screen/presentation/controller/game_screen_controller.dart';
 import 'package:checker/feature/game_screen/presentation/ui/state/game_screen_state.dart';
+import 'package:checker/feature/main_screen/presentation/controller/main_screen_controller.dart';
 import 'package:checker/feature/main_screen/presentation/ui/register_user_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +27,12 @@ class _MainScreenState extends State<MainScreen> {
 
     WidgetsBinding.instance
         .addPostFrameCallback((_) {
-      showDialog(context: context, builder: (_)=>RegisterUserDialog(mainScreenController: context.read(),));
+          final controller = context.read<MainScreenController>();
+          if(controller.getLocalUser()==null){
+            showDialog(context: context,barrierDismissible: false, builder: (_)=>RegisterUserDialog(mainScreenController: controller,));
+          }else{
+            print(controller.getLocalUser());
+          }
 
     });
   }

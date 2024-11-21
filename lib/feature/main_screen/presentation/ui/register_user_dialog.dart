@@ -1,7 +1,11 @@
+import 'package:checker/common/presentation/ui/overlays/bad_universal_overlay.dart';
+import 'package:checker/core/routing/go_router_provider.dart';
 import 'package:checker/feature/main_screen/domain/model/register_user.dart';
 import 'package:checker/feature/main_screen/presentation/controller/main_screen_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 class RegisterUserDialog extends StatefulWidget{
   final MainScreenController mainScreenController;
@@ -24,7 +28,14 @@ class _RegisterUserDialogState extends State<RegisterUserDialog> {
         Row(children: [Expanded(child: TextFormField(controller: nicknameController,decoration:InputDecoration(hintText: "Your nickname"),))],),
         Row(children: [Expanded(child: MaterialButton(child: Text("Подтвердить"),onPressed: (){
           widget.mainScreenController.registerMainUser(RegisterUser(nickname: nicknameController.text)).then((v){
-            print("VDSVDSFVEWFEW $v");
+            widget.mainScreenController.saveLocalUser(v);
+            context.pop();
+          }).catchError((e){
+            showOverlayNotification(
+                    (context) => BadUniversalOverlay(
+                    text:
+                   e.message.toString()),
+                position: NotificationPosition.top);
           });
         })),
           SizedBox(width: 24,),

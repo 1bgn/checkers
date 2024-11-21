@@ -1,7 +1,8 @@
 
-import 'package:checker/feature/main_screen/data/dto/user_response.dart';
+import 'package:checker/feature/main_screen/data/dto/user_dto.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
+import 'package:retrofit/dio.dart';
 import 'package:retrofit/error_logger.dart';
 import 'package:retrofit/http.dart';
 
@@ -14,5 +15,5 @@ abstract class MainApi{
   @factoryMethod
   factory MainApi(Dio dio, {String? baseUrl}) = _MainApi;
   @POST("/register_user")
-  Future<UserResponse> registerUser(@Body() RegisterUserDto registerUserDto);
+  Future<UserDto> registerUser(@Body() RegisterUserDto registerUserDto);
 }
