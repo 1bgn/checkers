@@ -38,9 +38,9 @@ class BottomNavigationWidget extends StatelessWidget {
         GoRouter.of(context).go("/");
         break;
       case 1:
-        GoRouter.of(context).go("/private-game-list-route");
-      case 2:
         GoRouter.of(context).go("/open-game-list-route");
+      case 2:
+        GoRouter.of(context).go("/private-game-list-route");
         break;
       default:
         throw Exception("No item found");

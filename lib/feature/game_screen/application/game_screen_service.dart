@@ -1,18 +1,30 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:ui';
 import 'dart:math' as math;
 
+import 'package:checker/common/game_session_feature/domain/model/connect_to_game.dart';
+import 'package:checker/common/game_session_feature/domain/model/receive_websocket_event_object.dart';
+import 'package:checker/common/user_feature/data/repository/iuser_repository.dart';
+import 'package:checker/common/user_feature/domain/model/user.dart';
 import 'package:checker/feature/game_screen/application/igame_screen_service.dart';
 import 'package:checker/feature/game_screen/domain/models/checker_position.dart';
 import 'package:checker/feature/game_screen/domain/models/game_cell.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../common/game_session_feature/data/repository/igame_repository.dart';
+import '../../../common/game_session_feature/domain/model/sender_websocket_event_object.dart';
 import '../../../core/enum/diag.dart';
 import '../domain/models/checker.dart';
 import '../presentation/controller/game_screen_controller.dart';
 @LazySingleton(as: IGameScreenService)
 class GameScreenService extends IGameScreenService{
+  final IUserRepository userRepository;
+  final IGameRepository _iGameRepository;
+
+  GameScreenService(this.userRepository, this._iGameRepository);
+
   @override
   CheckerPosition getPosition(GameCell checker, double cellWidth) {
     final halfWidth = cellWidth;
@@ -589,6 +601,16 @@ cells: cells,
             column: secondPos.column + 1,
             cellColor: CellColor.black);
     }
+  }
+
+  @override
+  User getCurrentUser() {
+    return userRepository.getLocalUser()!;
+  }
+
+  @override
+  Future<StreamController<SenderWebsocketEvent>> listenGameSession(ConnectToGame connectionToGame, StreamController<ReceiveWebsocketEvent> connection) {
+    return _iGameRepository.onEvent(connectionToGame, connection);
   }
 
 }

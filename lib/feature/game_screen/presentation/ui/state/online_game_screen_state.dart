@@ -1,0 +1,34 @@
+import 'dart:async';
+
+import 'package:checker/common/game_session_feature/domain/model/game_session.dart';
+import 'package:checker/common/user_feature/domain/model/user.dart';
+import 'package:checker/feature/game_screen/domain/models/game_field.dart';
+import 'package:flutter/material.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+import '../../../../../common/game_session_feature/domain/model/receive_websocket_event_object.dart';
+import '../../../../../common/game_session_feature/domain/model/sender_websocket_event_object.dart';
+import '../../../domain/models/game_cell.dart';
+
+part 'online_game_screen_state.freezed.dart';
+@freezed
+class OnlineGameScreenState with _$OnlineGameScreenState{
+  const factory OnlineGameScreenState({
+    @Default(false) final bool isLoading,
+    @Default(false) final bool isUploaded,
+    @Default(false) final bool isDeleted,
+    @Default(false) final bool isReadonly,
+    @Default(GameField()) final GameField gameField,
+    @Default(GameSession()) final GameSession gameSession,
+    @Default(null) final User? currentUser,
+    @Default(null)final  Color?  colorCurrentUser,
+    @Default(null) final User? opponentUser,
+    @Default(0) int timeCounter,
+    @Default(null) Color? winner,
+    @Default(null)  StreamController<ReceiveWebsocketEvent>? reciever,
+    @Default(null) StreamController<SenderWebsocketEvent>? sender
+
+  }) = _OnlineGameScreenState;
+
+
+}

@@ -1,3 +1,4 @@
+import 'package:checker/common/user_feature/domain/model/get_user.dart';
 import 'package:checker/feature/game_screen/presentation/controller/game_screen_controller.dart';
 import 'package:checker/feature/game_screen/presentation/ui/state/game_screen_state.dart';
 import 'package:checker/feature/main_screen/presentation/controller/main_screen_controller.dart';
@@ -26,12 +27,18 @@ class _MainScreenState extends State<MainScreen> {
 
 
     WidgetsBinding.instance
-        .addPostFrameCallback((_) {
+        .addPostFrameCallback((_) async {
           final controller = context.read<MainScreenController>();
-          if(controller.getLocalUser()==null){
-            showDialog(context: context,barrierDismissible: false, builder: (_)=>RegisterUserDialog(mainScreenController: controller,));
+          final localUser = controller.getLocalUser();
+          if(localUser!=null){
+            final remoteUser = await controller.getRemoteUser(GetUser(nickname: localUser.nickname));
+            if(remoteUser==null){
+              showDialog(context: context,barrierDismissible: false, builder: (_)=>RegisterUserDialog(mainScreenController: controller,));
+            }else{
+              controller.saveLocalUser(remoteUser);
+            }
           }else{
-            print(controller.getLocalUser());
+              showDialog(context: context,barrierDismissible: false, builder: (_)=>RegisterUserDialog(mainScreenController: controller,));
           }
 
     });

@@ -18,6 +18,6 @@ abstract class InjectorModule {
 
     return dio;
   }
-  @singleton
-  String get baseUrl=>'http://192.168.0.3:3000/';
+  @Singleton()
+  String get baseUrl=>'http://192.168.0.24:3000/';
 }

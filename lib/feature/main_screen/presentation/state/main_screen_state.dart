@@ -1,5 +1,7 @@
-import 'package:checker/feature/main_screen/domain/model/main_user.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import '../../../../common/user_feature/domain/model/user.dart';
+
 
 part 'main_screen_state.freezed.dart';
 
@@ -7,5 +9,5 @@ part 'main_screen_state.freezed.dart';
 class MainScreenState with _$MainScreenState {
   const factory MainScreenState(
       {@Default(0) int pageIndex,
-      @Default(MainUser()) MainUser currentUser}) = _MainScreenState;
+      @Default(User()) User currentUser}) = _MainScreenState;
 }

@@ -1,8 +1,11 @@
-import '../domain/model/main_user.dart';
+import 'package:checker/common/user_feature/domain/model/get_user.dart';
+
+import '../../../common/user_feature/domain/model/user.dart';
 import '../domain/model/register_user.dart';
 
 abstract class IMainService{
-  Future<MainUser> registerUser(RegisterUser registerUser);
-  MainUser? getLocalUser();
-  void saveUser(MainUser userResponse);
+  Future<User> registerUser(RegisterUser registerUser);
+  User? getLocalUser();
+  Future<User> getRemoteUser(GetUser getUser);
+  void saveUser(User userResponse);
 }

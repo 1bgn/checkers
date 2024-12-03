@@ -1,23 +1,27 @@
 import 'dart:convert';
 
+import 'package:checker/common/user_feature/data/api/user_api.dart';
 import 'package:checker/core/constants/local_constants.dart';
 import 'package:checker/core/exception/failure.dart';
 import 'package:checker/feature/main_screen/data/api/main_api.dart';
 import 'package:checker/feature/main_screen/data/dto/register_user_dto.dart';
-import 'package:checker/feature/main_screen/data/dto/user_dto.dart';
 import 'package:checker/feature/main_screen/data/repository/imain_repository.dart';
-import 'package:checker/feature/main_screen/domain/model/main_user.dart';
 import 'package:checker/feature/main_screen/domain/model/register_user.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:localstorage/localstorage.dart';
+
+import '../../../../common/user_feature/data/dto/user_dto.dart';
+import '../../../../common/user_feature/domain/model/user.dart';
+
 @LazySingleton(as: IMainRepository)
 class MainRepository implements IMainRepository{
   final MainApi _mainApi;
+  final UserApi _userApi;
 
-  MainRepository(this._mainApi);
+  MainRepository(this._mainApi, this._userApi);
   @override
-  Future<MainUser> registerUser(RegisterUser registerUser) async {
+  Future<User> registerUser(RegisterUser registerUser) async {
     try{
       final result = await _mainApi.registerUser(mapRegisterUserTo(registerUser));
 
@@ -32,24 +36,19 @@ class MainRepository implements IMainRepository{
   RegisterUserDto mapRegisterUserTo(RegisterUser registerUser){
     return RegisterUserDto(nickname:registerUser.nickname);
   }
-  MainUser mapUserDtoTo(UserDto registerUser){
-    return MainUser(nickname: registerUser.nickname,accessToken: registerUser.accessToken);
+  User mapUserDtoTo(UserDto registerUser){
+    return User(nickname: registerUser.nickname,accessToken: registerUser.accessToken);
   }
-  UserDto mapUserDtoFrom(MainUser registerUser){
-    return UserDto(nickname: registerUser.nickname,accessToken: registerUser.accessToken);
-  }
-  @override
-  MainUser? getUser() {
-   final res =  localStorage.getItem(LocalConstants.localUser);
-   if(res !=null){
-     return mapUserDtoTo(UserDto.fromJson(json.decode(res)));
-   }
-   return null;
+  UserDto mapUserDtoFrom(User registerUser){
+    return UserDto(nickname: registerUser.nickname,accessToken: registerUser.accessToken, id: registerUser.id);
   }
 
+
   @override
-  void saveUser(MainUser mainUser) {
+  void saveUser(User mainUser) {
     localStorage.setItem(LocalConstants.localUser, json.encode(mapUserDtoFrom(mainUser)));
   }
+
+
 
 }

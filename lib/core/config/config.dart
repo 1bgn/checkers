@@ -1,3 +1,3 @@
 class Config{
-  static const String mainAddress = "";
+  // static const String mainAddress = "http://192.168.0.2/";
 }
