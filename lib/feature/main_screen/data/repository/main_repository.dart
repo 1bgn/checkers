@@ -37,7 +37,7 @@ class MainRepository implements IMainRepository{
     return RegisterUserDto(nickname:registerUser.nickname);
   }
   User mapUserDtoTo(UserDto registerUser){
-    return User(nickname: registerUser.nickname,accessToken: registerUser.accessToken);
+    return User(nickname: registerUser.nickname,accessToken: registerUser.accessToken,id: registerUser.id);
   }
   UserDto mapUserDtoFrom(User registerUser){
     return UserDto(nickname: registerUser.nickname,accessToken: registerUser.accessToken, id: registerUser.id);

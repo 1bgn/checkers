@@ -3,6 +3,7 @@ import 'dart:collection';
 
 import 'package:checker/common/game_session_feature/domain/model/game_connection.dart';
 import 'package:checker/common/game_session_feature/domain/model/game_session.dart';
+import 'package:checker/common/game_session_feature/domain/model/user_connection.dart';
 import 'package:checker/feature/game_screen/application/igame_screen_service.dart';
 import 'package:checker/feature/game_screen/domain/models/game_field.dart';
 import 'package:checker/feature/game_screen/presentation/ui/state/game_screen_state.dart';
@@ -120,7 +121,11 @@ class OnlineGameScreenController extends Cubit<OnlineGameScreenState> {
   }
 
   void upgradeGameField(){
-    state.sender?.add(WebsocketGameSessionEventSession(eventType: SenderWebsocketEventType.UpdateSessionState,gameSession:state.gameSession.copyWith(gameField: state.gameField,)));
+    state.sender?.add(UpgradeWebsocketGameSessionEventSession(eventType: SenderWebsocketEventType.UpdateSessionState,gameSession:state.gameSession.copyWith(gameField: state.gameField,)));
+
+  }
+  void sessionJoin(){
+    state.sender?.add(JoinWebsocketGameSessionEventSession(eventType: SenderWebsocketEventType.Join,userConnection: UserConnection(sessionId: state.gameSession.id)));
 
   }
   Checker? getSelectedChecker() {

@@ -20,4 +20,5 @@ abstract class InjectorModule {
   }
   @Singleton()
   String get baseUrl=>'http://192.168.0.24:3000/';
+  // String get baseUrl=>'http://79.174.81.94:81/';
 }

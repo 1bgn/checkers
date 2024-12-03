@@ -27,9 +27,9 @@ final GlobalKey<StatefulNavigationShellState> _shellNavigatorKey =
 @LazySingleton()
 class GoRouterProvider {
   GoRouter? _router;
-
   GoRouter goRouter() {
     _router ??= GoRouter(
+
         navigatorKey: _rootNavigatorKey,
         initialLocation: "/",
         routes: [
@@ -45,6 +45,7 @@ class GoRouterProvider {
               }),
           GoRoute(
               path: "/online-game-route",
+
               name: onlineGameRoute,
               pageBuilder: (context, state) {
                 return NoTransitionPage(
@@ -86,6 +87,7 @@ class GoRouterProvider {
                       }),
                 ]),
                 StatefulShellBranch(routes: [
+
                   GoRoute(
                       path: "/open-game-list-route",
                       name: openGameRoute,

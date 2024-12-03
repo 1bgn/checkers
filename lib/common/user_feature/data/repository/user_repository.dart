@@ -22,7 +22,7 @@ class UserRepository implements IUserRepository{
 
 
   User mapUserDtoTo(UserDto userDto){
-    return User(nickname: userDto.nickname,accessToken: userDto.accessToken);
+    return User(nickname: userDto.nickname,accessToken: userDto.accessToken,id: userDto.id);
   }
 
   UserDto mapUserDtoFrom(User user){

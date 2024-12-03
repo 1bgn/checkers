@@ -49,8 +49,9 @@ class _OnlineGameFieldScreenState extends State<OnlineGameFieldScreen> {
         });
       }
       await controller.listenGameSession(ConnectToGame(nickname: controller.state.currentUser!.nickname), controller.state.reciever!);
-      controller.upgradeGameField();
       // controller.state.sender?.add(WebsocketGameSessionEventSession(eventType: SenderWebsocketEventType.UpdateSessionState,gameSession: controller.state.gameSession));
+      controller.sessionJoin();
+
       onlineSubscription ??= controller.state.reciever?.stream.listen((d){
         switch(d.websocketEventType){
 
@@ -60,7 +61,9 @@ class _OnlineGameFieldScreenState extends State<OnlineGameFieldScreen> {
 
 
         }
+
       });
+
     });
 
     // mobxMainScreenController.onGameOver = onGameOver;

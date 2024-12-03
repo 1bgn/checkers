@@ -25,7 +25,9 @@ class WebsocketDataSource implements IWebsocketDataSource{
   Future<StreamController<SenderWebsocketEvent>> onEvent(ConnectToGame connectionToGame, StreamController<ReceiveWebsocketEvent> eventsFrom,) async{
     socket = IO.io(getIt<String>(),
         OptionBuilder().setTransports(['websocket']).enableForceNew().build());
-
+    socket?.onConnect((_) {
+      print('socket connected');
+    });
     final sender = StreamController<SenderWebsocketEvent>();
     sender.stream.listen((message){
       switch(message.eventType){
@@ -33,11 +35,15 @@ class WebsocketDataSource implements IWebsocketDataSource{
 
         case SenderWebsocketEventType.UpdateSessionState:
           final mapper = getIt<GameSessionMapper>();
-          final data = message as WebsocketGameSessionEventSession;
-
+          final data = message as UpgradeWebsocketGameSessionEventSession;
           socket?.emit("update-game-session-event",mapper.from(data.gameSession));
           break;
 
+        case SenderWebsocketEventType.Join:
+          final data = message as JoinWebsocketGameSessionEventSession;
+          socket?.emit("join",jsonEncode(data.userConnection.toJson()));
+          print("CWDEVEWV  ${data.userConnection.toJson()}");
+          break;
       }
     });
 
@@ -46,7 +52,6 @@ class WebsocketDataSource implements IWebsocketDataSource{
       'game-session-event',
           (m) {
         final message = jsonDecode(m);
-        print("DATAAAA ${message}");
 
         final websocketEventSessionFileJson =
         WebsocketEventTypeJson.fromJson(message);
