@@ -1,7 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'checker_position.dart';
-
 part 'game_cell.freezed.dart';
 
 @freezed

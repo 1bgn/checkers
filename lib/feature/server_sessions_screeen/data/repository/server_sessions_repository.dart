@@ -1,5 +1,4 @@
 import 'package:checker/common/game_session_feature/data/api/game_session_api.dart';
-import 'package:checker/common/game_session_feature/data/dto/full_game_session_item_response.dart';
 import 'package:checker/common/game_session_feature/data/dto/get_session_request.dart';
 import 'package:checker/common/game_session_feature/domain/model/get_session.dart';
 import 'package:checker/common/game_session_feature/mapper/game_session_mapper.dart';
@@ -14,7 +13,6 @@ import '../../../../common/game_session_feature/domain/model/game_connection.dar
 import '../../../../common/game_session_feature/domain/model/game_session.dart';
 import '../../../../common/game_session_feature/mapper/connect_to_game_mapper.dart';
 import '../../../../common/game_session_feature/mapper/game_session_item_mapper.dart';
-import '../../../../common/user_feature/domain/model/user.dart';
 @LazySingleton(as: IServerSessionsRepository)
  class ServerSessionsRepository implements IServerSessionsRepository{
    final ServerSessionsApi _serverSessionsApi;

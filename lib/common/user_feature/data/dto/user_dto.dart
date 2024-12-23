@@ -10,11 +10,11 @@ class UserDto{
   final String id;
 
 
-  factory UserDto.fromJson(Map<String, dynamic> json) =>
-  _$UserDtoFromJson(json);
+
 
   UserDto({required this.nickname, required this.accessToken, required this.id});
 
   Map<String, dynamic> toJson() => _$UserDtoToJson(this);
-
+  factory UserDto.fromJson(Map<String, dynamic> json) =>
+      _$UserDtoFromJson(json);
 }

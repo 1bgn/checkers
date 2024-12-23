@@ -1,6 +1,5 @@
 import 'package:checker/common/game_session_feature/data/dto/checker_response.dart';
 import 'package:checker/common/game_session_feature/data/dto/game_cell_response.dart';
-import 'package:checker/feature/game_screen/domain/models/game_cell.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'game_field_response.g.dart';

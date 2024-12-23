@@ -9,7 +9,6 @@ import '../../../core/enum/diag.dart';
 import '../domain/models/checker.dart';
 import '../domain/models/checker_position.dart';
 import '../domain/models/game_cell.dart';
-import '../presentation/controller/game_screen_controller.dart';
 
 abstract class IGameScreenService {
   Future<StreamController<SenderWebsocketEvent>> listenGameSession(ConnectToGame connectionToGame, StreamController<ReceiveWebsocketEvent> connection);
@@ -18,6 +17,9 @@ abstract class IGameScreenService {
       List<Checker> deadBlackPositions, List<Checker> deadWhitePositions);
 
   CheckerPosition getPosition(GameCell checker, double cellWidth);
+
+  Future<void> sendEmoji(String sessionId,String emoji,String accessTokenFrom);
+
 
   GameCell? findTwiceEnemyDiagCells(List<GameCell> positions);
   User getCurrentUser();

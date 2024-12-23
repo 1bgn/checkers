@@ -1,16 +1,11 @@
 import 'package:checker/common/game_session_feature/domain/model/connect_to_game.dart';
 import 'package:checker/common/game_session_feature/domain/model/game_connection.dart';
 import 'package:checker/common/game_session_feature/domain/model/game_session.dart';
-import 'package:checker/common/user_feature/domain/model/get_user.dart';
 import 'package:checker/feature/create_new_game/application/icreate_new_game_service.dart';
 import 'package:checker/feature/create_new_game/domain/model/create_game_session.dart';
-import 'package:checker/feature/main_screen/application/imain_service.dart';
-import 'package:checker/feature/main_screen/domain/model/register_user.dart';
-import 'package:checker/feature/server_sessions_screeen/presentation/state/game_sessions_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../../../common/user_feature/domain/model/user.dart';
 import '../ui/state/create_new_game_state.dart';
 @LazySingleton()
 class CreateNewGameController extends Cubit<CreateNewGameState> {

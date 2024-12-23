@@ -6,18 +6,16 @@ import 'package:checker/common/game_session_feature/domain/model/connect_to_game
 import 'package:checker/common/game_session_feature/domain/model/game_session.dart';
 import 'package:checker/common/game_session_feature/domain/model/receive_websocket_event_object.dart';
 import 'package:checker/common/game_session_feature/domain/model/sender_websocket_event_object.dart';
-import 'package:checker/common/game_session_feature/mapper/connect_to_game_mapper.dart';
-import 'package:checker/common/game_session_feature/mapper/game_field_mapper.dart';
 import 'package:checker/common/game_session_feature/mapper/game_session_mapper.dart';
 import 'package:checker/core/di/di_container.dart';
+import 'package:checker/feature/game_screen/data/dto/emoji_dto.dart';
+import 'package:checker/feature/game_screen/domain/models/emoji_model.dart';
 import 'package:injectable/injectable.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:socket_io_client/socket_io_client.dart';
 
-import '../../../../core/config/config.dart';
 import '../dto/full_game_session_response.dart';
 import '../dto/websocket_event_type_json.dart';
-import '../dto/websocket_gamefield_event_json.dart';
 @LazySingleton(as: IWebsocketDataSource)
 class WebsocketDataSource implements IWebsocketDataSource{
   IO.Socket? socket;
@@ -40,10 +38,10 @@ class WebsocketDataSource implements IWebsocketDataSource{
           break;
 
         case SenderWebsocketEventType.Join:
-          final data = message as JoinWebsocketGameSessionEventSession;
+          final data = message as SessionEvent;
           socket?.emit("join",jsonEncode(data.userConnection.toJson()));
-          print("CWDEVEWV  ${data.userConnection.toJson()}");
           break;
+
       }
     });
 
@@ -63,9 +61,21 @@ class WebsocketDataSource implements IWebsocketDataSource{
           case ReceiveWebsocketEventType.SessionEvent:
             eventsFrom.add(WebsocketGameSessionEvent(gameSession:prepareSession(message["data"]) ,websocketEventType: websocketEventSessionFileJson.event));
 
+          case ReceiveWebsocketEventType.FinishGame:
+            eventsFrom.add(FinishWebsocketGameSessionEvent(websocketEventType: websocketEventSessionFileJson.event));
+
+          case ReceiveWebsocketEventType.ResetGameField:
+            eventsFrom.add(WebsocketGameSessionEvent(gameSession:prepareSession(message["data"]) ,websocketEventType: websocketEventSessionFileJson.event));
+
+          case ReceiveWebsocketEventType.EmojiEvent:
+            final data= message["data"];
+            final emojiDto = EmojiDto.fromJson(data);
+            eventsFrom.add(EmojiWebsocketEvent(emoji: EmojiModel(sessionId: emojiDto.sessionId, emoji: emojiDto.emoji, accessTokenFrom: emojiDto.accessTokenFrom) ,websocketEventType: websocketEventSessionFileJson.event));
+
         }
       },
     );
+
     socket?.onDisconnect((_) {
       // socket?.emit("unjoin",
       //     jsonEncode(userConnectionMapper.mapFrom(userConnection).toJson()));

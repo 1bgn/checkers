@@ -5,7 +5,6 @@ import 'package:checker/common/user_feature/domain/model/user.dart';
 import 'package:checker/feature/create_new_game/application/icreate_new_game_service.dart';
 import 'package:checker/feature/create_new_game/data/create_new_game_repository/icreate_new_game_repository.dart';
 import 'package:checker/feature/create_new_game/domain/model/create_game_session.dart';
-import 'package:checker/feature/server_sessions_screeen/domain/model/game_session_item.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../common/game_session_feature/domain/model/game_session.dart';

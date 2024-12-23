@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:checker/feature/game_screen/application/igame_screen_service.dart';
 import 'package:checker/feature/game_screen/domain/models/game_field.dart';
 import 'package:checker/feature/game_screen/presentation/ui/state/game_screen_state.dart';
@@ -431,6 +429,7 @@ class GameScreenController extends Cubit<GameScreenState> {
             position:
                 GameCell(row: row3, column: 1, cellColor: CellColor.black)),
         Checker(
+          isQueen: false,
             color: color,
             position:
                 GameCell(row: row3, column: 3, cellColor: CellColor.black)),

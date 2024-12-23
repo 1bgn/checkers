@@ -1,12 +1,9 @@
-import 'package:checker/core/routing/go_router_provider.dart';
-import 'package:checker/feature/create_new_game/presentation/controller/create_new_game_controller.dart';
 import 'package:checker/feature/create_new_game/presentation/controller/create_new_game_controller.dart';
 import 'package:checker/feature/create_new_game/presentation/ui/state/create_new_game_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shimmer/shimmer.dart';
 
 class CreateNewGameScreen extends StatefulWidget {
   @override

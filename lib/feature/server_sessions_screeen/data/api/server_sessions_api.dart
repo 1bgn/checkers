@@ -5,9 +5,6 @@ import 'package:injectable/injectable.dart';
 import 'package:retrofit/error_logger.dart';
 import 'package:retrofit/http.dart';
 
-import '../../../../common/user_feature/data/dto/user_dto.dart';
-import '../../../../core/config/config.dart';
-
 part 'server_sessions_api.g.dart';
 @LazySingleton()
 @RestApi()

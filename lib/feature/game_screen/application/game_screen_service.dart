@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:ui';
 import 'dart:math' as math;
 
 import 'package:checker/common/game_session_feature/domain/model/connect_to_game.dart';
@@ -8,22 +7,27 @@ import 'package:checker/common/game_session_feature/domain/model/receive_websock
 import 'package:checker/common/user_feature/data/repository/iuser_repository.dart';
 import 'package:checker/common/user_feature/domain/model/user.dart';
 import 'package:checker/feature/game_screen/application/igame_screen_service.dart';
+import 'package:checker/feature/game_screen/data/repository/ionline_game_repository.dart';
 import 'package:checker/feature/game_screen/domain/models/checker_position.dart';
+import 'package:checker/feature/game_screen/domain/models/emoji_model.dart';
 import 'package:checker/feature/game_screen/domain/models/game_cell.dart';
 import 'package:flutter/material.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../common/game_session_feature/data/repository/igame_repository.dart';
 import '../../../common/game_session_feature/domain/model/sender_websocket_event_object.dart';
 import '../../../core/enum/diag.dart';
 import '../domain/models/checker.dart';
-import '../presentation/controller/game_screen_controller.dart';
+
 @LazySingleton(as: IGameScreenService)
-class GameScreenService extends IGameScreenService{
+class GameScreenService extends IGameScreenService {
   final IUserRepository userRepository;
   final IGameRepository _iGameRepository;
+  final IOnlineGameRepository _iOnlineGameRepository;
 
-  GameScreenService(this.userRepository, this._iGameRepository);
+  GameScreenService(
+      this.userRepository, this._iGameRepository, this._iOnlineGameRepository);
 
   @override
   CheckerPosition getPosition(GameCell checker, double cellWidth) {
@@ -37,7 +41,8 @@ class GameScreenService extends IGameScreenService{
   }
 
   @override
-  Color? isWin( List<Checker>  deadBlackPositions, List<Checker>  deadWhitePositions) {
+  Color? isWin(
+      List<Checker> deadBlackPositions, List<Checker> deadWhitePositions) {
     if (deadBlackPositions.length == 12) {
       return Colors.white;
     }
@@ -72,61 +77,67 @@ class GameScreenService extends IGameScreenService{
     }
     return false;
   }
-  List<GameCell> getFreeCells( {   required List<GameCell> cells,
-    required  Checker checker,
-    required  List<Checker> blackPositions,
-    required List<Checker> whitePositions,}) {
+
+  List<GameCell> getFreeCells({
+    required List<GameCell> cells,
+    required Checker checker,
+    required List<Checker> blackPositions,
+    required List<Checker> whitePositions,
+  }) {
     final Map<Diag, List<GameCell>> diags = {};
 
     if (checker.color == Colors.black) {
       if (checker.isQueen) {
         diags.putIfAbsent(
             Diag.topLeft,
-                () => takeDiagCells(
-                  cells: cells,
-                startPoint: checker.position, diag: Diag.topLeft, length: 8));
+            () => takeDiagCells(
+                cells: cells,
+                startPoint: checker.position,
+                diag: Diag.topLeft,
+                length: 8));
         diags.putIfAbsent(
             Diag.topRight,
-                () => takeDiagCells(
-                    cells: cells,
-
-                startPoint: checker.position, diag: Diag.topRight, length: 8));
+            () => takeDiagCells(
+                cells: cells,
+                startPoint: checker.position,
+                diag: Diag.topRight,
+                length: 8));
         diags.putIfAbsent(
             Diag.bottomLeft,
-                () => takeDiagCells(
-                    cells: cells,
-
+            () => takeDiagCells(
+                cells: cells,
                 startPoint: checker.position,
                 diag: Diag.bottomLeft,
                 length: 8));
         diags.putIfAbsent(
             Diag.bottomRight,
-                () => takeDiagCells(
-                    cells: cells,
-
+            () => takeDiagCells(
+                cells: cells,
                 startPoint: checker.position,
                 diag: Diag.bottomRight,
                 length: 8));
       } else {
         diags.putIfAbsent(
             Diag.topLeft,
-                () => takeDiagCells(
-                    cells: cells,
-
-                startPoint: checker.position, diag: Diag.topLeft, length: 1));
+            () => takeDiagCells(
+                cells: cells,
+                startPoint: checker.position,
+                diag: Diag.topLeft,
+                length: 1));
         diags.putIfAbsent(
             Diag.topRight,
-                () => takeDiagCells(
-                    cells: cells,
-
-                startPoint: checker.position, diag: Diag.topRight, length: 1));
+            () => takeDiagCells(
+                cells: cells,
+                startPoint: checker.position,
+                diag: Diag.topRight,
+                length: 1));
 
         // freeCells = takeDiagCells(startPoint: checker.position, diag: Diag.topLeft,length: 1);
         // freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.topRight,length: 1));
       }
       diags.forEach((key, element) {
-        final containsBlack = blackPositions
-            .indexWhere((e) => element.contains(e.position));
+        final containsBlack =
+            blackPositions.indexWhere((e) => element.contains(e.position));
 
         if (containsBlack != -1) {
           final cloneDiag = [...element];
@@ -138,75 +149,69 @@ class GameScreenService extends IGameScreenService{
       var busyPositions = whitePositions
           .map((element) => element.position)
           .where((element) =>
-      diags[Diag.topLeft]!.contains(element) ||
-          diags[Diag.topRight]!.contains(element) ||
-          (diags.containsKey(Diag.bottomRight) &&
-              (diags[Diag.bottomRight]!.contains(element) ||
-                  diags[Diag.bottomLeft]!.contains(element))))
+              diags[Diag.topLeft]!.contains(element) ||
+              diags[Diag.topRight]!.contains(element) ||
+              (diags.containsKey(Diag.bottomRight) &&
+                  (diags[Diag.bottomRight]!.contains(element) ||
+                      diags[Diag.bottomLeft]!.contains(element))))
           .toList();
       GameCell? nearEnemyPos = findTwiceEnemyDiagCells(busyPositions);
 
       return diags
           .map((d, p) {
-        var res = p.takeWhile((e) => e != nearEnemyPos).toList();
+            var res = p.takeWhile((e) => e != nearEnemyPos).toList();
 
-        return MapEntry(d, res);
-      })
+            return MapEntry(d, res);
+          })
           .values
           .expand((element) => element)
           .takeWhile((value) => value != nearEnemyPos)
           .where((element) =>
-      !blackPositions
-          .map((y) => y.position)
-          .contains(element) &&
-          !whitePositions
-              .map((y) => y.position)
-              .contains(element))
+              !blackPositions.map((y) => y.position).contains(element) &&
+              !whitePositions.map((y) => y.position).contains(element))
           .toList();
     } else if (checker.color == Colors.white) {
       if (checker.isQueen) {
         diags.putIfAbsent(
             Diag.topLeft,
-                () => takeDiagCells(
-                    cells: cells,
-
-                startPoint: checker.position, diag: Diag.topLeft, length: 8));
+            () => takeDiagCells(
+                cells: cells,
+                startPoint: checker.position,
+                diag: Diag.topLeft,
+                length: 8));
         diags.putIfAbsent(
             Diag.topRight,
-                () => takeDiagCells(
-                    cells: cells,
-
-                startPoint: checker.position, diag: Diag.topRight, length: 8));
+            () => takeDiagCells(
+                cells: cells,
+                startPoint: checker.position,
+                diag: Diag.topRight,
+                length: 8));
         diags.putIfAbsent(
             Diag.bottomLeft,
-                () => takeDiagCells(
-                    cells: cells,
-
+            () => takeDiagCells(
+                cells: cells,
                 startPoint: checker.position,
                 diag: Diag.bottomLeft,
                 length: 8));
         diags.putIfAbsent(
             Diag.bottomRight,
-                () => takeDiagCells(
-                    cells: cells,
-
+            () => takeDiagCells(
+                cells: cells,
                 startPoint: checker.position,
                 diag: Diag.bottomRight,
                 length: 8));
       } else {
         diags.putIfAbsent(
             Diag.bottomLeft,
-                () => takeDiagCells(
-                    cells: cells,
-
+            () => takeDiagCells(
+                cells: cells,
                 startPoint: checker.position,
                 diag: Diag.bottomRight,
                 length: 1));
         diags.putIfAbsent(
             Diag.bottomRight,
-                () => takeDiagCells(
-                    cells: cells,
-
+            () => takeDiagCells(
+                cells: cells,
                 startPoint: checker.position,
                 diag: Diag.bottomLeft,
                 length: 1));
@@ -215,8 +220,8 @@ class GameScreenService extends IGameScreenService{
         // freeCells.addAll(takeDiagCells(startPoint: checker.position, diag: Diag.topRight,length: 1));
       }
       diags.forEach((key, element) {
-        final containsBlack = whitePositions
-            .indexWhere((e) => element.contains(e.position));
+        final containsBlack =
+            whitePositions.indexWhere((e) => element.contains(e.position));
 
         if (containsBlack != -1) {
           final cloneDiag = [...element];
@@ -228,79 +233,76 @@ class GameScreenService extends IGameScreenService{
       var busyPositions = blackPositions
           .map((element) => element.position)
           .where((element) =>
-      diags[Diag.bottomLeft]!.contains(element) ||
-          diags[Diag.bottomRight]!.contains(element) ||
-          (diags.containsKey(Diag.topRight) &&
-              (diags[Diag.topRight]!.contains(element) ||
-                  diags[Diag.topLeft]!.contains(element))))
+              diags[Diag.bottomLeft]!.contains(element) ||
+              diags[Diag.bottomRight]!.contains(element) ||
+              (diags.containsKey(Diag.topRight) &&
+                  (diags[Diag.topRight]!.contains(element) ||
+                      diags[Diag.topLeft]!.contains(element))))
           .toList();
       GameCell? nearEnemyPos = findTwiceEnemyDiagCells(busyPositions);
 
       return diags
           .map((d, p) {
-        var res = p
-            .takeWhile((e) =>
-        e != nearEnemyPos &&
-            !whitePositions
-                .map((k) => k.position)
-                .contains(e))
-            .toList();
-        return MapEntry(d, res);
-      })
+            var res = p
+                .takeWhile((e) =>
+                    e != nearEnemyPos &&
+                    !whitePositions.map((k) => k.position).contains(e))
+                .toList();
+            return MapEntry(d, res);
+          })
           .values
           .expand((element) => element)
-      // .takeWhile((value) => whitePositions.map((k)=>k.position).contains(value))
+          // .takeWhile((value) => whitePositions.map((k)=>k.position).contains(value))
           .where((element) =>
-      !blackPositions
-          .map((y) => y.position)
-          .contains(element) &&
-          !whitePositions
-              .map((y) => y.position)
-              .contains(element))
+              !blackPositions.map((y) => y.position).contains(element) &&
+              !whitePositions.map((y) => y.position).contains(element))
           .toList();
     }
     // cells.forEach((element) {element.})
     return [];
   }
+
   List<GameCell> takeDiagCells(
-      {required List<GameCell> cells,required GameCell startPoint, required Diag diag, int length = 8}) {
+      {required List<GameCell> cells,
+      required GameCell startPoint,
+      required Diag diag,
+      int length = 8}) {
     List<GameCell> freeCells = [];
     switch (diag) {
       case Diag.topLeft:
         freeCells.addAll(List.generate(
             length + 1,
-                (index) => GameCell(
+            (index) => GameCell(
                 row: startPoint.row - index,
                 column: startPoint.column - index,
                 cellColor: CellColor.black)));
       case Diag.topRight:
         freeCells.addAll(List.generate(
             length + 1,
-                (index) => GameCell(
+            (index) => GameCell(
                 row: startPoint.row - index,
                 column: startPoint.column + index,
                 cellColor: CellColor.black)));
       case Diag.bottomLeft:
         freeCells.addAll(List.generate(
             length + 1,
-                (index) => GameCell(
+            (index) => GameCell(
                 row: startPoint.row + index,
                 column: startPoint.column - index,
                 cellColor: CellColor.black)));
       case Diag.bottomRight:
         freeCells.addAll(List.generate(
             length + 1,
-                (index) => GameCell(
+            (index) => GameCell(
                 row: startPoint.row + index,
                 column: startPoint.column + index,
                 cellColor: CellColor.black)));
     }
-    freeCells = freeCells
-        .where((element) => cells.contains(element))
-        .toList();
+    freeCells = freeCells.where((element) => cells.contains(element)).toList();
     freeCells = freeCells.skip(1).toList();
     return freeCells;
   }
+
   List<GameCell> cellsBeforeSecondPos(
       List<GameCell> diag, GameCell secondPoint) {
     List<GameCell> enemyPoints = [];
@@ -315,27 +317,32 @@ class GameScreenService extends IGameScreenService{
     }
     return enemyPoints;
   }
+
   Checker? getKilledCheckersAfterAttack(
-      {   required  List<Checker> blackPositions,
-        required List<Checker> whitePositions,required List<GameCell> cells,required Checker checker, required GameCell firstPos, required GameCell secondPos}) {
+      {required List<Checker> blackPositions,
+      required List<Checker> whitePositions,
+      required List<GameCell> cells,
+      required Checker checker,
+      required GameCell firstPos,
+      required GameCell secondPos}) {
     final Map<Diag, List<GameCell>> diags = {
       Diag.topLeft: takeDiagCells(
-          cells:cells,
+          cells: cells,
           startPoint: checker.position,
           diag: Diag.topLeft,
           length: checker.isQueen ? 8 : 1),
-      Diag.topRight:takeDiagCells(
-          cells:cells,
+      Diag.topRight: takeDiagCells(
+          cells: cells,
           startPoint: checker.position,
           diag: Diag.topRight,
           length: checker.isQueen ? 8 : 1),
       Diag.bottomLeft: takeDiagCells(
-          cells:cells,
+          cells: cells,
           startPoint: checker.position,
           diag: Diag.bottomLeft,
           length: checker.isQueen ? 8 : 1),
       Diag.bottomRight: takeDiagCells(
-          cells:cells,
+          cells: cells,
           startPoint: checker.position,
           diag: Diag.bottomRight,
           length: checker.isQueen ? 8 : 1),
@@ -348,7 +355,7 @@ class GameScreenService extends IGameScreenService{
 
     if (checker.color == Colors.white) {
       var blackEnemyPositions = blackPositions
-      // .map((element) => element.position)
+          // .map((element) => element.position)
           .where((element) => diags[diag]!.contains(element.position))
           .toList();
       if (blackEnemyPositions.isNotEmpty) {
@@ -356,8 +363,8 @@ class GameScreenService extends IGameScreenService{
       }
     } else {
       var blackEnemyPositions = whitePositions
-      // .map((element) => element.position)
-      // .where((element) => diags[diag]!.contains(element.position) &&diags[diag]!.last!=element.position )
+          // .map((element) => element.position)
+          // .where((element) => diags[diag]!.contains(element.position) &&diags[diag]!.last!=element.position )
           .where((element) => diags[diag]!.contains(element.position))
           .toList();
       if (blackEnemyPositions.isNotEmpty) {
@@ -367,6 +374,7 @@ class GameScreenService extends IGameScreenService{
 
     return null;
   }
+
   Diag defineDiag(GameCell startPoint, GameCell endPoint) {
     if (startPoint.row > endPoint.row && startPoint.column > endPoint.column) {
       return Diag.topLeft;
@@ -380,30 +388,217 @@ class GameScreenService extends IGameScreenService{
       return Diag.bottomRight;
     }
   }
-  List<GameCell> getFreeCellsAfterAttack({required Checker checker,required List<GameCell> cells, required  List<Checker> blackPositions,
-    required List<Checker> whitePositions,}) {
-    final Map<Diag, List<GameCell>> diags = {
-      Diag.topLeft: takeDiagCells(
-cells: cells,
-          startPoint: checker.position,
-          diag: Diag.topLeft,
-          length: checker.isQueen ? 8 : 2),
-      Diag.topRight: takeDiagCells(
-        cells: cells,
-          startPoint: checker.position,
-          diag: Diag.topRight,
-          length: checker.isQueen ? 8 : 2),
-      Diag.bottomLeft: takeDiagCells(
-        cells: cells,
-          startPoint: checker.position,
-          diag: Diag.bottomLeft,
-          length: checker.isQueen ? 8 : 2),
-      Diag.bottomRight: takeDiagCells(
-        cells: cells,
-          startPoint: checker.position,
-          diag: Diag.bottomRight,
-          length: checker.isQueen ? 8 : 2),
-    };
+
+  List<GameCell> getFreeCellsAfterAttack(
+      {required Checker checker,
+      required List<GameCell> cells,
+      required List<Checker> blackPositions,
+      required List<Checker> whitePositions,
+      int recurseStep = 0}) {
+    final Map<Diag, List<GameCell>> diags =
+        initDiags(checker: checker, cells: cells);
+    var whitePoints = whitePositions
+        .map((element) => element.position)
+        .where((element) =>
+            diags[Diag.bottomLeft]!.contains(element) ||
+            diags[Diag.bottomRight]!.contains(element) ||
+            diags[Diag.topLeft]!.contains(element) ||
+            diags[Diag.topRight]!.contains(element))
+        .toList();
+    var blackPoints = blackPositions
+        .map((element) => element.position)
+        .where((element) =>
+            diags[Diag.bottomLeft]!.contains(element) ||
+            diags[Diag.bottomRight]!.contains(element) ||
+            diags[Diag.topLeft]!.contains(element) ||
+            diags[Diag.topRight]!.contains(element))
+        .toList();
+    if (checker.color == Colors.black) {
+      var groupedEnemies =
+          groupByDiag(startPoint: checker.position, cells: whitePoints);
+      groupedEnemies = groupedEnemies.map((i, v) {
+        final twiceEnemy = findTwiceEnemyDiagCells(v);
+        var res = checker.isQueen
+            ? sortPointsByDistantionPoint(gameCell: checker.position, cells: v)
+            : sortPointsByDistantionPoint(gameCell: checker.position, cells: v)
+                .reversed
+                .toList();
+        res = res.takeWhile((o) => o != twiceEnemy).toList();
+
+        if (res.length > 1) {
+          res = [res.first];
+        }
+        if (twiceEnemy != null) {
+          res = res
+              .where((e) =>
+                  cellAfterSecondPos(
+                      i, cellAfterSecondPos(i, checker.position)) !=
+                  e)
+              .map((e) => cellAfterSecondPos(i, e))
+              .toList();
+        } else if (!checker.isQueen) {
+          res = res
+              .where((e) =>
+                  cellAfterSecondPos(
+                          i, cellAfterSecondPos(i, checker.position)) !=
+                      e &&
+                  !blackPoints.contains(cellAfterSecondPos(i, e)))
+              .map((e) => cellAfterSecondPos(i, e))
+              .toList();
+        } else if (checker.isQueen) {
+          res = res
+              .where((e) => !blackPoints.contains(cellAfterSecondPos(
+                  i, cellAfterSecondPos(i, checker.position))))
+              .map((e) => cellAfterSecondPos(i, e))
+              .toList();
+        } else {
+          res = res.map((e) => cellAfterSecondPos(i, e)).toList();
+        }
+
+        if (res.isNotEmpty && checker.isQueen) {
+          res.addAll(takeDiagCells(
+            startPoint: res.last,
+            diag: i,
+            cells: cells,
+          ));
+          res = res.takeWhile((e) => !whitePoints.contains(e)).toList();
+
+        }
+        res = res
+            .takeWhile((e) =>
+                !blackPoints.contains(cellAfterSecondPos(i, checker.position)))
+            .takeWhile((e) => !blackPoints.contains(e))
+            .where((e) =>
+                e.column <= 8 && e.row <= 8 && e.column >= 1 && e.row >= 1)
+            .toList();
+        Map<GameCell,Map<Diag,List<GameCell>>> reses = {};
+        for (final e in res){
+          final result =  getFreeCellsAfterAttackByDiags(checker: checker.copyWith(position: e), cells: cells, blackPositions: blackPositions, whitePositions: whitePositions);
+          reses.putIfAbsent(e, ()=>result);
+        }
+        List<GameCell> maxCells = [];
+        reses.forEach((k,v){
+          if(v.length>1){
+            maxCells.add(k);
+          }
+        });
+        if(maxCells.isNotEmpty){
+          return MapEntry(i, maxCells);
+        }
+        return MapEntry(i, res);
+      });
+
+      return groupedEnemies.values
+          .expand((e) => e)
+          .where((e) => !whitePoints.contains(e) && !blackPoints.contains(e))
+          .toList();
+
+      // freeCells = freeCells.where((element) => whitePositions.map((y)=>y.position).contains(element)).toList();
+    } else if (checker.color == Colors.white) {
+      var groupedEnemies =
+          groupByDiag(startPoint: checker.position, cells: blackPoints);
+      groupedEnemies = groupedEnemies.map((i, v) {
+        var twiceEnemy = findTwiceEnemyDiagCells(v);
+
+        var res = checker.isQueen
+            ? sortPointsByDistantionPoint(gameCell: checker.position, cells: v)
+            : sortPointsByDistantionPoint(gameCell: checker.position, cells: v)
+                .reversed
+                .toList();
+        res = res.takeWhile((o) => o != twiceEnemy).toList();
+
+        if (res.length > 1) {
+          res = [res.first];
+        }
+        res = res.takeWhile((o) => o != twiceEnemy).toList();
+        if (twiceEnemy != null) {
+          res = res
+              .where((e) =>
+                  cellAfterSecondPos(
+                      i, cellAfterSecondPos(i, checker.position)) !=
+                  e)
+              .map((e) => cellAfterSecondPos(i, e))
+              .toList();
+        } else if (!checker.isQueen) {
+          res = res
+              .where((e) =>
+                  cellAfterSecondPos(
+                          i, cellAfterSecondPos(i, checker.position)) !=
+                      e &&
+                  !whitePoints.contains(cellAfterSecondPos(i, e)))
+              .map((e) => cellAfterSecondPos(i, e))
+              .toList();
+        } else if (checker.isQueen) {
+          res = res
+              .where((e) => !whitePoints.contains(cellAfterSecondPos(
+                  i, cellAfterSecondPos(i, checker.position))))
+              .map((e) => cellAfterSecondPos(i, e))
+              .toList();
+        } else {
+          res = res.map((e) => cellAfterSecondPos(i, e)).toList();
+        }
+        // print("12345 $i ${checker.position} ${cellAfterSecondPos(i, checker.position)}");
+
+        if (res.isNotEmpty && checker.isQueen) {
+          res.addAll(
+              takeDiagCells(startPoint: res.last, diag: i, cells: cells));
+          res = res.takeWhile((e) => !blackPoints.contains(e)).toList();
+        }
+        res = res
+            .takeWhile((e) =>
+                !whitePoints.contains(cellAfterSecondPos(i, checker.position)))
+            .takeWhile((e) => !whitePoints.contains(e))
+            .where((e) =>
+                e.column <= 8 && e.row <= 8 && e.column >= 1 && e.row >= 1)
+            .toList();
+
+
+         Map<GameCell,Map<Diag,List<GameCell>>> reses = {};
+        for (final e in res){
+          final result =  getFreeCellsAfterAttackByDiags(checker: checker.copyWith(position: e), cells: cells, blackPositions: blackPositions, whitePositions: whitePositions);
+          reses.putIfAbsent(e, ()=>result);
+        }
+        // GameCell? cellMax;
+        // Map<Diag,List<GameCell>> maxRes = {};
+        // reses.forEach((k,v){
+        //   if(v.length>maxRes.length){
+        //     cellMax = k;
+        //     maxRes = v;
+        //   }
+        // });
+        // if(cellMax!=null){
+        //   return MapEntry(i, [cellMax!]);
+        // }
+        List<GameCell> maxCells = [];
+        reses.forEach((k,v){
+          if(v.length>1){
+            maxCells.add(k);
+          }
+        });
+        if(maxCells.isNotEmpty){
+          return MapEntry(i, maxCells);
+        }
+
+        return MapEntry(i, res);
+      });
+
+      return groupedEnemies.values
+          .expand((e) => e)
+          .where((e) => !whitePoints.contains(e) && !blackPoints.contains(e))
+          .toList();
+    }
+    // cells.forEach((element) {element.})
+    return [];
+  }
+
+  Map<Diag,List<GameCell> > getFreeCellsAfterAttackByDiags(
+      {required Checker checker,
+        required List<GameCell> cells,
+        required List<Checker> blackPositions,
+        required List<Checker> whitePositions,
+        int recurseStep = 0}) {
+    final Map<Diag, List<GameCell>> diags =
+    initDiags(checker: checker, cells: cells);
     var whitePoints = whitePositions
         .map((element) => element.position)
         .where((element) =>
@@ -421,13 +616,13 @@ cells: cells,
         diags[Diag.topRight]!.contains(element))
         .toList();
     if (checker.color == Colors.black) {
-      var groupedEnemies = groupByDiag(startPoint:checker.position,cells:  whitePoints);
-
+      var groupedEnemies =
+      groupByDiag(startPoint: checker.position, cells: whitePoints);
       groupedEnemies = groupedEnemies.map((i, v) {
         final twiceEnemy = findTwiceEnemyDiagCells(v);
         var res = checker.isQueen
-            ? sortPointsByDistantionPoint(gameCell:  checker.position, cells: v)
-            : sortPointsByDistantionPoint(gameCell:  checker.position, cells: v)
+            ? sortPointsByDistantionPoint(gameCell: checker.position, cells: v)
+            : sortPointsByDistantionPoint(gameCell: checker.position, cells: v)
             .reversed
             .toList();
         res = res.takeWhile((o) => o != twiceEnemy).toList();
@@ -463,8 +658,13 @@ cells: cells,
         }
 
         if (res.isNotEmpty && checker.isQueen) {
-          res.addAll(takeDiagCells(startPoint: res.last, diag: i, cells:cells,));
+          res.addAll(takeDiagCells(
+            startPoint: res.last,
+            diag: i,
+            cells: cells,
+          ));
           res = res.takeWhile((e) => !whitePoints.contains(e)).toList();
+
         }
         res = res
             .takeWhile((e) =>
@@ -477,18 +677,20 @@ cells: cells,
         return MapEntry(i, res);
       });
 
-      return groupedEnemies.values.expand((e) => e).where((e)=>!whitePoints.contains(e) && !blackPoints.contains(e)).toList();
+      groupedEnemies = groupedEnemies.map((k,v)=>MapEntry(k, v.where((e)=>!whitePoints.contains(e) && !blackPoints.contains(e)).toList()));
+      groupedEnemies.removeWhere((k,v)=>v.isEmpty);
+      return groupedEnemies;
 
       // freeCells = freeCells.where((element) => whitePositions.map((y)=>y.position).contains(element)).toList();
     } else if (checker.color == Colors.white) {
-      var groupedEnemies = groupByDiag(startPoint:  checker.position,cells:  blackPoints);
-
+      var groupedEnemies =
+      groupByDiag(startPoint: checker.position, cells: blackPoints);
       groupedEnemies = groupedEnemies.map((i, v) {
         var twiceEnemy = findTwiceEnemyDiagCells(v);
 
         var res = checker.isQueen
-            ? sortPointsByDistantionPoint(gameCell:  checker.position, cells: v)
-            : sortPointsByDistantionPoint(gameCell:  checker.position, cells: v)
+            ? sortPointsByDistantionPoint(gameCell: checker.position, cells: v)
+            : sortPointsByDistantionPoint(gameCell: checker.position, cells: v)
             .reversed
             .toList();
         res = res.takeWhile((o) => o != twiceEnemy).toList();
@@ -524,10 +726,10 @@ cells: cells,
           res = res.map((e) => cellAfterSecondPos(i, e)).toList();
         }
 
-        if (res.isNotEmpty &&
-            checker.isQueen &&
-            !blackPoints.contains(cellAfterSecondPos(i, checker.position))) {
-          res.addAll(takeDiagCells(startPoint: res.last, diag: i,cells: cells));
+
+        if (res.isNotEmpty && checker.isQueen) {
+          res.addAll(
+              takeDiagCells(startPoint: res.last, diag: i, cells: cells));
           res = res.takeWhile((e) => !blackPoints.contains(e)).toList();
         }
         res = res
@@ -537,16 +739,17 @@ cells: cells,
             .where((e) =>
         e.column <= 8 && e.row <= 8 && e.column >= 1 && e.row >= 1)
             .toList();
-
         return MapEntry(i, res);
       });
-      print("12324323 ${groupedEnemies}");
 
-      return groupedEnemies.values.expand((e) => e).where((e)=>!whitePoints.contains(e) && !blackPoints.contains(e)).toList();
+      groupedEnemies = groupedEnemies.map((k,v)=>MapEntry(k, v.where((e)=>!whitePoints.contains(e) && !blackPoints.contains(e)).toList()));
+      groupedEnemies.removeWhere((k,v)=>v.isEmpty);
+      return groupedEnemies;
     }
     // cells.forEach((element) {element.})
-    return [];
+    return {};
   }
+
   Map<Diag, List<GameCell>> groupByDiag(
       {required GameCell startPoint, required List<GameCell> cells}) {
     final diags = <Diag, List<GameCell>>{};
@@ -562,8 +765,36 @@ cells: cells,
     }
     return diags;
   }
+
+  Map<Diag, List<GameCell>> initDiags(
+      {required Checker checker, required List<GameCell> cells}) {
+    final Map<Diag, List<GameCell>> diags = {
+      Diag.topLeft: takeDiagCells(
+          cells: cells,
+          startPoint: checker.position,
+          diag: Diag.topLeft,
+          length: checker.isQueen ? 8 : 2),
+      Diag.topRight: takeDiagCells(
+          cells: cells,
+          startPoint: checker.position,
+          diag: Diag.topRight,
+          length: checker.isQueen ? 8 : 2),
+      Diag.bottomLeft: takeDiagCells(
+          cells: cells,
+          startPoint: checker.position,
+          diag: Diag.bottomLeft,
+          length: checker.isQueen ? 8 : 2),
+      Diag.bottomRight: takeDiagCells(
+          cells: cells,
+          startPoint: checker.position,
+          diag: Diag.bottomRight,
+          length: checker.isQueen ? 8 : 2),
+    };
+    return diags;
+  }
+
   List<GameCell> sortPointsByDistantionPoint(
-      {required GameCell gameCell,required  List<GameCell> cells}) {
+      {required GameCell gameCell, required List<GameCell> cells}) {
     SplayTreeMap<double, GameCell> distancePoints = SplayTreeMap();
     for (var e in cells) {
       final distance = distanceBetweenPoints(gameCell, e);
@@ -572,10 +803,12 @@ cells: cells,
 
     return distancePoints.values.toList();
   }
+
   double distanceBetweenPoints(GameCell point1, GameCell point2) {
     return math.sqrt(math.pow(point1.column - point2.column, 2) +
         math.pow(point1.row - point2.row, 2));
   }
+
   GameCell cellAfterSecondPos(Diag diag, GameCell secondPos) {
     switch (diag) {
       case Diag.topLeft:
@@ -609,8 +842,14 @@ cells: cells,
   }
 
   @override
-  Future<StreamController<SenderWebsocketEvent>> listenGameSession(ConnectToGame connectionToGame, StreamController<ReceiveWebsocketEvent> connection) {
+  Future<StreamController<SenderWebsocketEvent>> listenGameSession(
+      ConnectToGame connectionToGame,
+      StreamController<ReceiveWebsocketEvent> connection) {
     return _iGameRepository.onEvent(connectionToGame, connection);
   }
 
+  @override
+  Future<void> sendEmoji(String sessionId, String emoji,String accessTokenFrom) {
+    return _iOnlineGameRepository.sendEmoji(EmojiModel(sessionId: sessionId, emoji: emoji, accessTokenFrom: accessTokenFrom));
+  }
 }

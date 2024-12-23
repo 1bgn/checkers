@@ -1,15 +1,10 @@
-import 'package:checker/common/game_session_feature/domain/model/connect_to_game.dart';
 import 'package:checker/common/game_session_feature/domain/model/get_session.dart';
-import 'package:checker/feature/main_screen/presentation/state/main_screen_state.dart';
 import 'package:checker/feature/server_sessions_screeen/presentation/controller/game_session_controller.dart';
 import 'package:checker/feature/server_sessions_screeen/presentation/state/game_sessions_state.dart';
 import 'package:checker/feature/server_sessions_screeen/presentation/widget/game_list_item.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../main_screen/presentation/controller/main_screen_controller.dart';
 
 class GameSessionsScreen extends StatefulWidget {
   final bool isPrivate;

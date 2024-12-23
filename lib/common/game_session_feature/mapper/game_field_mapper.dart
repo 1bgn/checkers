@@ -2,7 +2,6 @@ import 'package:checker/common/game_session_feature/data/dto/game_field_response
 import 'package:checker/common/game_session_feature/mapper/game_cell_mapper.dart';
 import 'package:checker/common/game_session_feature/mapper/game_checker_mapper.dart';
 import 'package:checker/core/di/di_container.dart';
-import 'package:checker/feature/game_screen/domain/models/checker.dart';
 import 'package:checker/feature/game_screen/domain/models/game_cell.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';

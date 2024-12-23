@@ -1,12 +1,11 @@
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:checker/common/game_session_feature/domain/model/game_connection.dart';
 import 'package:checker/common/game_session_feature/domain/model/game_session.dart';
 import 'package:checker/common/game_session_feature/domain/model/user_connection.dart';
 import 'package:checker/feature/game_screen/application/igame_screen_service.dart';
+import 'package:checker/feature/game_screen/domain/models/emoji_model.dart';
 import 'package:checker/feature/game_screen/domain/models/game_field.dart';
-import 'package:checker/feature/game_screen/presentation/ui/state/game_screen_state.dart';
 import 'package:checker/feature/game_screen/presentation/ui/state/online_game_screen_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,29 +25,52 @@ class OnlineGameScreenController extends Cubit<OnlineGameScreenState> {
   void nextTime() {
     emit(state.copyWith(timeCounter: state.timeCounter + 1));
   }
-  Future<void> listenGameSession(ConnectToGame connectionToGame, StreamController<ReceiveWebsocketEvent> connection) async {
-   final sender = await _gameScreenService.listenGameSession(connectionToGame, connection);
-   emit(state.copyWith(sender: sender));
+  void sendEmoji(String emoji){
+    _gameScreenService.sendEmoji(state.gameSession.id, emoji,state.currentUser!.accessToken);
   }
-  void updateGameSession(GameSession gameSession){
-    print("GAMEFIELD ${gameSession.gameField.lightedPositions}");
-    emit(state.copyWith(gameField: gameSession.gameField,));
+void setEmoji(EmojiModel? emoji){
+    emit(state.copyWith(currentEmoji: emoji));
+}
+  Future<void> listenGameSession(ConnectToGame connectionToGame,
+      StreamController<ReceiveWebsocketEvent> connection) async {
+    final sender = await _gameScreenService.listenGameSession(
+        connectionToGame, connection);
+    emit(state.copyWith(sender: sender));
   }
+
+  void updateGameSession(GameSession gameSession) {
+    final user = _gameScreenService.getCurrentUser();
+    emit(state.copyWith(
+        gameField: gameSession.gameField,
+        opponentUser: gameSession.gameSessionItem.whiteGamePlayer == user
+            ? gameSession.gameSessionItem.blackGamePlayer
+            : gameSession.gameSessionItem.whiteGamePlayer,
+        currentUser: user));
+  }
+
+  void resetGame() {
+    emit(state.copyWith(
+        gameField: GameField(
+            whitePositions: initCheckers(color: Colors.white),
+            blackPositions: initCheckers(color: Colors.black))));
+    upgradeGameField();
+  }
+
   Future<OnlineGameScreenState> init(
       GameSession gameSession, GameConnection gameConnection) async {
-    emit(state.copyWith(isLoading: true,reciever: StreamController()));
+    emit(state.copyWith(isLoading: true, reciever: StreamController()));
     emit(state.copyWith(
-      opponentUser: gameConnection.sideColor == Colors.white
-          ? gameSession.gameSessionItem.blackGamePlayer
-          : gameSession.gameSessionItem.whiteGamePlayer,
+        opponentUser: gameConnection.sideColor == Colors.white
+            ? gameSession.gameSessionItem.blackGamePlayer
+            : gameSession.gameSessionItem.whiteGamePlayer,
         gameSession: gameSession.copyWith(
             gameSessionItem: gameSession.gameSessionItem.copyWith(
                 whiteGamePlayer: gameConnection.sideColor == Colors.white
                     ? _gameScreenService.getCurrentUser()
                     : null,
-            blackGamePlayer: gameConnection.sideColor == Colors.black
-                ? _gameScreenService.getCurrentUser()
-                : null))));
+                blackGamePlayer: gameConnection.sideColor == Colors.black
+                    ? _gameScreenService.getCurrentUser()
+                    : null))));
 
     _deployCurrentSession(gameSession);
     emit(state.copyWith(colorCurrentUser: gameConnection.sideColor));
@@ -58,7 +80,6 @@ class OnlineGameScreenController extends Cubit<OnlineGameScreenState> {
 
   void _deployCurrentSession(GameSession gameSession) {
     emit(state.copyWith(
-
       gameField: gameSession.gameField,
       currentUser: _gameScreenService.getCurrentUser(),
     ));
@@ -117,17 +138,22 @@ class OnlineGameScreenController extends Cubit<OnlineGameScreenState> {
     }
 
     return state.gameField;
-
   }
 
-  void upgradeGameField(){
-    state.sender?.add(UpgradeWebsocketGameSessionEventSession(eventType: SenderWebsocketEventType.UpdateSessionState,gameSession:state.gameSession.copyWith(gameField: state.gameField,)));
-
+  void upgradeGameField() {
+    state.sender?.add(UpgradeWebsocketGameSessionEventSession(
+        eventType: SenderWebsocketEventType.UpdateSessionState,
+        gameSession: state.gameSession.copyWith(
+          gameField: state.gameField,
+        )));
   }
-  void sessionJoin(){
-    state.sender?.add(JoinWebsocketGameSessionEventSession(eventType: SenderWebsocketEventType.Join,userConnection: UserConnection(sessionId: state.gameSession.id)));
 
+  void sessionJoin() {
+    state.sender?.add(SessionEvent(
+        eventType: SenderWebsocketEventType.Join,
+        userConnection: UserConnection(sessionId: state.gameSession.id)));
   }
+
   Checker? getSelectedChecker() {
     final indexBlack = state.gameField.blackPositions
         .indexWhere((element) => element.isSelected);
@@ -161,6 +187,7 @@ class OnlineGameScreenController extends Cubit<OnlineGameScreenState> {
             checker!
           ])));
     }
+
     if (checker?.color == Colors.black) {
       final blackPositions = [...state.gameField.blackPositions];
 
@@ -171,7 +198,7 @@ class OnlineGameScreenController extends Cubit<OnlineGameScreenState> {
           gameField: state.gameField.copyWith(
               blackPositions: blackPositions,
               deadBlackPositions: [
-            ...state.gameField.deadWhitePositions,
+            ...state.gameField.deadBlackPositions,
             checker!
           ])));
     }
@@ -189,8 +216,6 @@ class OnlineGameScreenController extends Cubit<OnlineGameScreenState> {
     emit(state.copyWith(
         gameField: state.gameField
             .copyWith(whitePositions: whitePositions, lightedPositions: [])));
-    // unselectWhiteCheckers();
-    // state.gameField!.lightedPositions.clear();
     var killedChecker = _gameScreenService.getKilledCheckersAfterAttack(
         checker: checker,
         firstPos: firstPosition,
@@ -362,8 +387,6 @@ class OnlineGameScreenController extends Cubit<OnlineGameScreenState> {
     emit(state.copyWith(
         gameField: state.gameField.copyWith(whitePositions: whitePositions)));
   }
-
-
 
   List<Checker> initCheckers({
     required Color color,

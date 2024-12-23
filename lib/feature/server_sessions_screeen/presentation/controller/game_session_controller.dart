@@ -1,8 +1,5 @@
 import 'package:checker/common/game_session_feature/domain/model/game_session.dart';
 import 'package:checker/common/game_session_feature/domain/model/get_session.dart';
-import 'package:checker/common/user_feature/domain/model/get_user.dart';
-import 'package:checker/feature/main_screen/application/imain_service.dart';
-import 'package:checker/feature/main_screen/domain/model/register_user.dart';
 import 'package:checker/feature/server_sessions_screeen/application/igame_list_api_service.dart';
 import 'package:checker/feature/server_sessions_screeen/domain/model/game_session_item.dart';
 import 'package:checker/feature/server_sessions_screeen/presentation/state/game_sessions_state.dart';
@@ -10,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../common/game_session_feature/domain/model/connect_to_game.dart';
 import '../../../../common/game_session_feature/domain/model/game_connection.dart';
-import '../../../../common/user_feature/domain/model/user.dart';
 
 
 class GameSessionController extends Cubit<GameSessionsState>{

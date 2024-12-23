@@ -1,4 +1,3 @@
-import 'package:checker/common/game_session_feature/data/dto/game_field_response.dart';
 import 'package:checker/common/user_feature/data/dto/user_dto.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -21,10 +20,13 @@ class FullGameSessionItemResponse{
   final UserDto creator;
   @JsonKey(name: "session_id")
   final String sessionId;
+  @JsonKey(name: "winner")
+  final UserDto? winner;
   factory FullGameSessionItemResponse.fromJson(Map<String, dynamic> json) =>
       _$FullGameSessionItemResponseFromJson(json);
 
-  FullGameSessionItemResponse({required this.id, required this.isPrivate, required this.isFinished, required this.password, required this.whiteGamer, required this.blackGamer, required this.creator, required this.sessionId});
+  FullGameSessionItemResponse({required this.id, required this.isPrivate, required this.isFinished, required this.password, required this.whiteGamer, required this.blackGamer, required this.creator, required this.sessionId, required this.winner});
+
 
 
 

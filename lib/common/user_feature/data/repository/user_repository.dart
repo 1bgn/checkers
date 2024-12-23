@@ -1,11 +1,9 @@
 import 'dart:convert';
 
 import 'package:checker/common/user_feature/data/api/user_api.dart';
-import 'package:checker/common/user_feature/data/dto/get_user_dto.dart';
 import 'package:checker/common/user_feature/domain/model/get_user.dart';
 import 'package:checker/core/constants/local_constants.dart';
 import 'package:checker/core/exception/failure.dart';
-import 'package:checker/feature/main_screen/data/api/main_api.dart';
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:localstorage/localstorage.dart';

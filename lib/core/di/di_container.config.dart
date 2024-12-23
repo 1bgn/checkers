@@ -53,6 +53,12 @@ import 'package:checker/feature/game_screen/application/game_screen_service.dart
     as _i327;
 import 'package:checker/feature/game_screen/application/igame_screen_service.dart'
     as _i762;
+import 'package:checker/feature/game_screen/data/api/game_screen_api.dart'
+    as _i605;
+import 'package:checker/feature/game_screen/data/repository/ionline_game_repository.dart'
+    as _i709;
+import 'package:checker/feature/game_screen/data/repository/online_game_repository.dart'
+    as _i348;
 import 'package:checker/feature/main_screen/application/imain_service.dart'
     as _i1006;
 import 'package:checker/feature/main_screen/application/main_service.dart'
@@ -72,6 +78,12 @@ import 'package:checker/feature/server_sessions_screeen/data/repository/iserver_
     as _i535;
 import 'package:checker/feature/server_sessions_screeen/data/repository/server_sessions_repository.dart'
     as _i101;
+import 'package:checker/feature/win_game_dialog/application/win_game_dialog_service.dart'
+    as _i579;
+import 'package:checker/feature/win_game_dialog/data/api/win_game_dialog_api.dart'
+    as _i1071;
+import 'package:checker/feature/win_game_dialog/data/repository/win_game_session_dialog_repository.dart'
+    as _i463;
 import 'package:dio/dio.dart' as _i361;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
@@ -100,11 +112,23 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i843.GoRouterProvider>(() => _i843.GoRouterProvider());
     gh.lazySingleton<_i597.IWebsocketDataSource>(
         () => _i571.WebsocketDataSource());
-    gh.lazySingleton<_i811.MainApi>(() => _i811.MainApi(
+    gh.lazySingleton<_i742.UserApi>(() => _i742.UserApi(
           gh<_i361.Dio>(),
           baseUrl: gh<String>(),
         ));
-    gh.lazySingleton<_i742.UserApi>(() => _i742.UserApi(
+    gh.lazySingleton<_i820.GameSessionApi>(() => _i820.GameSessionApi(
+          gh<_i361.Dio>(),
+          baseUrl: gh<String>(),
+        ));
+    gh.lazySingleton<_i303.ServerSessionsApi>(() => _i303.ServerSessionsApi(
+          gh<_i361.Dio>(),
+          baseUrl: gh<String>(),
+        ));
+    gh.lazySingleton<_i605.GameScreenApi>(() => _i605.GameScreenApi(
+          gh<_i361.Dio>(),
+          baseUrl: gh<String>(),
+        ));
+    gh.lazySingleton<_i811.MainApi>(() => _i811.MainApi(
           gh<_i361.Dio>(),
           baseUrl: gh<String>(),
         ));
@@ -113,11 +137,7 @@ extension GetItInjectableX on _i174.GetIt {
               gh<_i361.Dio>(),
               baseUrl: gh<String>(),
             ));
-    gh.lazySingleton<_i303.ServerSessionsApi>(() => _i303.ServerSessionsApi(
-          gh<_i361.Dio>(),
-          baseUrl: gh<String>(),
-        ));
-    gh.lazySingleton<_i820.GameSessionApi>(() => _i820.GameSessionApi(
+    gh.factory<_i1071.WinGameDialogApi>(() => _i1071.WinGameDialogApi(
           gh<_i361.Dio>(),
           baseUrl: gh<String>(),
         ));
@@ -135,10 +155,17 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i811.MainApi>(),
           gh<_i742.UserApi>(),
         ));
+    gh.factory<_i463.WinGameSessionDialogRepository>(() =>
+        _i463.WinGameSessionDialogRepository(
+            winGameDialogApi: gh<_i1071.WinGameDialogApi>()));
     gh.lazySingleton<_i212.IGameRepository>(
         () => _i122.GameRepository(gh<_i597.IWebsocketDataSource>()));
     gh.lazySingleton<_i311.IUserRepository>(
         () => _i649.UserRepository(gh<_i742.UserApi>()));
+    gh.factory<_i709.IOnlineGameRepository>(() =>
+        _i348.OnlineGameRepository(gameScreenApi: gh<_i605.GameScreenApi>()));
+    gh.factory<_i579.WinGameDialogService>(() => _i579.WinGameDialogService(
+        repository: gh<_i463.WinGameSessionDialogRepository>()));
     gh.lazySingleton<_i515.IGameListApiService>(() => _i91.GameListApiService(
           gh<_i535.IServerSessionsRepository>(),
           gh<_i311.IUserRepository>(),
@@ -147,6 +174,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i762.IGameScreenService>(() => _i327.GameScreenService(
           gh<_i311.IUserRepository>(),
           gh<_i212.IGameRepository>(),
+          gh<_i709.IOnlineGameRepository>(),
         ));
     gh.lazySingleton<_i1007.ICreateNewGameService>(
         () => _i1055.CreateNewGameService(

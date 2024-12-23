@@ -2,7 +2,6 @@ import 'package:checker/common/game_session_feature/data/repository/igame_reposi
 import 'package:checker/common/game_session_feature/domain/model/game_session.dart';
 import 'package:checker/common/game_session_feature/domain/model/get_session.dart';
 import 'package:checker/common/user_feature/data/repository/iuser_repository.dart';
-import 'package:checker/feature/game_screen/application/igame_screen_service.dart';
 import 'package:checker/feature/server_sessions_screeen/application/igame_list_api_service.dart';
 import 'package:checker/feature/server_sessions_screeen/data/repository/iserver_sessions_repository.dart';
 import 'package:checker/feature/server_sessions_screeen/domain/model/game_session_item.dart';

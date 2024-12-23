@@ -1,6 +1,4 @@
-import 'package:checker/common/game_session_feature/data/repository/game_repository.dart';
 import 'package:checker/common/game_session_feature/data/repository/igame_repository.dart';
-import 'package:checker/common/game_session_feature/domain/model/connect_to_game.dart';
 import 'package:checker/common/user_feature/data/repository/iuser_repository.dart';
 import 'package:checker/common/user_feature/domain/model/get_user.dart';
 import 'package:checker/feature/main_screen/application/imain_service.dart';

@@ -1,13 +1,14 @@
-import 'package:checker/common/game_session_feature/domain/model/game_session.dart';
+import 'package:checker/core/routing/dialog_page.dart';
 import 'package:checker/core/routing/route_name.dart';
 import 'package:checker/feature/create_new_game/presentation/controller/create_new_game_controller.dart';
 import 'package:checker/feature/create_new_game/presentation/ui/create_new_game_screen.dart';
 import 'package:checker/feature/game_screen/presentation/controller/game_screen_controller.dart';
 import 'package:checker/feature/main_screen/presentation/controller/main_screen_controller.dart';
-import 'package:checker/feature/select_new_game/presentation/ui/select_new_game_screen.dart';
 import 'package:checker/feature/main_screen/presentation/ui/main_screen.dart';
+import 'package:checker/feature/select_new_game/presentation/ui/select_new_game_screen.dart';
 import 'package:checker/feature/server_sessions_screeen/presentation/controller/game_session_controller.dart';
 import 'package:checker/feature/server_sessions_screeen/presentation/game_sessions_screen.dart';
+import 'package:checker/feature/win_game_dialog/presentation/controller/win_game_dialog_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,8 +16,8 @@ import 'package:go_router/go_router.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../feature/game_screen/presentation/controller/online_game_screen_controller.dart';
-import '../../feature/game_screen/presentation/ui/game_field_screen.dart';
 import '../../feature/game_screen/presentation/ui/game_screen.dart';
+import '../../feature/win_game_dialog/presentation/ui/win_game_dialog.dart';
 import '../di/di_container.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey =
@@ -27,9 +28,9 @@ final GlobalKey<StatefulNavigationShellState> _shellNavigatorKey =
 @LazySingleton()
 class GoRouterProvider {
   GoRouter? _router;
+
   GoRouter goRouter() {
     _router ??= GoRouter(
-
         navigatorKey: _rootNavigatorKey,
         initialLocation: "/",
         routes: [
@@ -45,7 +46,6 @@ class GoRouterProvider {
               }),
           GoRoute(
               path: "/online-game-route",
-
               name: onlineGameRoute,
               pageBuilder: (context, state) {
                 return NoTransitionPage(
@@ -58,10 +58,25 @@ class GoRouterProvider {
                             OnlineGameScreenController(getIt()))
                   ],
                   child: GameScreen(
-                    gameSession: (state.extra! as dynamic ) [0],
-                    gameConnection: (state.extra! as dynamic ) [1],
+                    gameSession: (state.extra! as dynamic)[0],
+                    gameConnection: (state.extra! as dynamic)[1],
                   ),
                 ));
+              }),
+          GoRoute(
+              path: "/win-game-route",
+              name: winGameRoute,
+              pageBuilder: (context, state) {
+                return DialogPage(
+                    builder: (context) => BlocProvider(
+                          create: (context) => WinGameDialogController(getIt()),
+                          child: WinGameDialog(
+                            gameSession:
+                                (state.extra! as dynamic)["gameSession"],
+                          ),
+                        ),
+                    barrierDismissible: false
+                );
               }),
           GoRoute(
               path: "/create-game-route",
@@ -87,7 +102,6 @@ class GoRouterProvider {
                       }),
                 ]),
                 StatefulShellBranch(routes: [
-
                   GoRoute(
                       path: "/open-game-list-route",
                       name: openGameRoute,

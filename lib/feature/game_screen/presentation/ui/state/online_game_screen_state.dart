@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:checker/common/game_session_feature/domain/model/game_session.dart';
 import 'package:checker/common/user_feature/domain/model/user.dart';
+import 'package:checker/feature/game_screen/domain/models/emoji_model.dart';
 import 'package:checker/feature/game_screen/domain/models/game_field.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../../common/game_session_feature/domain/model/receive_websocket_event_object.dart';
 import '../../../../../common/game_session_feature/domain/model/sender_websocket_event_object.dart';
-import '../../../domain/models/game_cell.dart';
 
 part 'online_game_screen_state.freezed.dart';
 @freezed
@@ -26,7 +26,8 @@ class OnlineGameScreenState with _$OnlineGameScreenState{
     @Default(0) int timeCounter,
     @Default(null) Color? winner,
     @Default(null)  StreamController<ReceiveWebsocketEvent>? reciever,
-    @Default(null) StreamController<SenderWebsocketEvent>? sender
+    @Default(null) StreamController<SenderWebsocketEvent>? sender,
+    @Default(null) EmojiModel? currentEmoji,
 
   }) = _OnlineGameScreenState;
 

@@ -1,19 +1,12 @@
-
 import 'dart:async';
-
 
 import 'package:checker/feature/game_screen/presentation/controller/game_screen_controller.dart';
 import 'package:checker/feature/game_screen/presentation/ui/components/checkers/black_checker.dart';
 import 'package:checker/feature/game_screen/presentation/ui/components/checkers/white_checker.dart';
 import 'package:checker/feature/game_screen/presentation/ui/state/game_screen_state.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../../core/di/di_container.dart';
 import '../../domain/models/game_cell.dart';
 import 'components/check_stack/check_stack.dart';
 import 'components/current_stage/current_stage.dart';
@@ -28,6 +21,7 @@ class GameFieldScreen extends StatefulWidget {
 class _GameFieldScreenState extends State<GameFieldScreen> {
   // final MobxMainScreenController mobxMainScreenController = getIt();
   StreamSubscription? timer;
+
   @override
   void initState() {
     final controller = context.read<GameScreenController>();
@@ -45,201 +39,242 @@ class _GameFieldScreenState extends State<GameFieldScreen> {
 
     super.initState();
   }
+
   @override
   void dispose() {
     timer?.cancel();
     super.dispose();
   }
-  void onGameOver(Color winner){
+
+  void onGameOver(Color winner) {
     timer?.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<GameScreenController, GameScreenState>(
-    builder: (context, state) {
-     final controller =  context.read<GameScreenController>();
+      builder: (context, state) {
+        final controller = context.read<GameScreenController>();
 
-      return state.isUploaded
-          ? Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: CurrentStage(color: state.gameField.currentSide, winner:state.winner),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 12,
-              ),
-              Expanded(
-                flex: 2,
-                child: LayoutBuilder(builder: (context, constraints) {
-                  // final screenSize = MediaQuery.of(context).size;
-                  final width =
-                  constraints.maxWidth < constraints.maxHeight
-                      ? constraints.maxWidth
-                      : constraints.maxHeight;
-                  final cellWidth = width / 8;
-                  return Container(
-                    width: width,
-                    height: width,
-                    decoration: BoxDecoration(color: Colors.white),
-                    child: Stack(
+        return state.isUploaded
+            ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Column(
                       children: [
-                        ...state.gameField.cells
-                            .map((e) {
-                          final coords = controller.getPosition(e,cellWidth);
-                          return Container(
-                            margin: EdgeInsets.only(
-                                left: coords.x - cellWidth,
-                                top: coords.y - cellWidth),
-                            width: cellWidth,
-                            height: cellWidth,
-                            decoration: BoxDecoration(
-                              color: e.cellColor == CellColor.black
-                                  ? Colors.brown
-                                  : Colors.brown.shade100,
-                            ),
-                            child: _LightMarker(
-                              cell: e,
-                              isLight: controller
-                                  .isLightedCell(e),
-                              isAttackLight: controller
-                                  .isAttackLightedCell(e),
-                              onTap: () {
-
-                                final selectedChecker =
-                                controller
-                                    .getSelectedChecker();
-                                if (selectedChecker?.color ==
-                                    Colors.black) {
-                                  controller
-                                      .nextSelectedBlackCheckerPosition(
-                                      e);
-                                }
-                                if (selectedChecker?.color ==
-                                    Colors.white) {
-                                  controller
-                                      .nextSelectedWhiteCheckerPosition(
-                                      e);
-                                }
-                                setState(() {});
-                              },
-                            ),
-                          );
-                        }),
-                        ...state
-                            .gameField.blackPositions
-                            .asMap()
-                            .map((i, e) {
-                          final coords =
-                         controller.getPosition(e.position,cellWidth);
-                          return MapEntry(
-                              i,
-                              GestureDetector(
-                                onTap: () {
-                                  // mobxMainScreenController.updateBlackChecker(i, e.copy(isSelected: !e.isSelected));
-                                  controller
-                                      .selectBlackChecker(i);
-                                },
-                                child: Container(
-                                  child: BlackChecker(isQueen: e.isQueen,isSelected: e.isSelected,),
-                                  margin: EdgeInsets.only(
-                                      left: coords.x - cellWidth,
-                                      top: coords.y - cellWidth),
-                                  width: cellWidth,
-                                  height: cellWidth,
-
-                                ),
-                              ));
-                        }).values,
-                        ...state.gameField.whitePositions
-                            .asMap()
-                            .map((i, e) {
-                          final coords =
-                          controller.getPosition(e.position,cellWidth);
-                          return MapEntry(
-                              i,
-                              GestureDetector(
-                                onTap: () {
-                                  controller
-                                      .selectWhiteChecker(i);
-                                },
-                                child: Container(
-                                  margin: EdgeInsets.only(
-                                      left: coords.x - cellWidth,
-                                      top: coords.y - cellWidth),
-                                  width: cellWidth,
-                                  height: cellWidth,
-                                  child: WhiteChecker(isQueen: e.isQueen,isSelected: e.isSelected,),
-
-                                ),
-                              ));
-                        }).values
+                        SizedBox(
+                          height: 24,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                                child: Text(
+                              "Продолжительность: ${currentTime(state)}",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.w500),
+                            ))
+                          ],
+                        ),
+                        SizedBox(
+                          height: 12,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                "Счет:",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.w500),
+                              ),
+                            )
+                          ],
+                        ),
+                        SizedBox(
+                          height: 12,
+                        ),
+                        CheckStack(
+                            svgIcon: "assets/images/white_cat_checker.svg",
+                            count: state.gameField.deadWhitePositions.length),
+                        SizedBox(
+                          height: 12,
+                        ),
+                        CheckStack(
+                            svgIcon: "assets/images/black_cat_checker.svg",
+                            count: state.gameField.deadBlackPositions.length)
                       ],
                     ),
-                  );
-                }),
-              ),
+                    SizedBox(
+                      height: 12,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: LayoutBuilder(builder: (context, constraints) {
+                            // final screenSize = MediaQuery.of(context).size;
+                            final width =
+                                constraints.maxWidth < constraints.maxHeight
+                                    ? constraints.maxWidth
+                                    : constraints.maxHeight;
+                            final cellWidth = width / 8;
+                            return Container(
 
-              Expanded(flex: 1,child: Column(children: [Row(
-                children: [
-                  Expanded(
-                      child: Text(
-                        "Продолжительность: ${currentTime(state)}",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.w500),
-                      ))
-                ],
-              ),
-                SizedBox(
-                  height: 12,
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        "Счет:",
-                        textAlign: TextAlign.center,
+                              decoration: BoxDecoration(
+                                boxShadow: [BoxShadow(spreadRadius: 1,blurRadius: 7,offset: Offset(5,5,),color: Colors.grey)],
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(12)),
+                                border: Border.all(color: Colors.brown),
+                              ),
+                              width: width,
+                              height: width,
+                              // decoration: BoxDecoration(color: Colors.white),
+                              child: Stack(
+                                children: [
+                                  ...state.gameField.cells.asMap().map((i, e) {
+                                    final coords =
+                                        controller.getPosition(e, cellWidth);
+                                    return MapEntry(
+                                        i,
+                                        Container(
+                                          margin: EdgeInsets.only(
+                                              left: coords.x - cellWidth,
+                                              top: coords.y - cellWidth),
+                                          width: cellWidth,
+                                          height: cellWidth,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.only(
+                                              topLeft: i == 0
+                                                  ? Radius.circular(12)
+                                                  : Radius.zero,
+                                              topRight:  i == 7
+                                                  ? Radius.circular(12)
+                                                  : Radius.zero,
+                                              bottomLeft:  i == 56
+                                                  ? Radius.circular(12)
+                                                  : Radius.zero,
+                                                bottomRight:  i == 63
+                                                    ? Radius.circular(12)
+                                                    : Radius.zero
 
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.w500),
-                      ),
-                    )
+
+                                            ),
+                                            color:
+                                                e.cellColor == CellColor.black
+                                                    ? Colors.brown
+                                                    : Colors.brown.shade100,
+                                          ),
+                                          child: _LightMarker(
+                                            cell: e,
+                                            isLight:
+                                                controller.isLightedCell(e),
+                                            isAttackLight: controller
+                                                .isAttackLightedCell(e),
+                                            onTap: () {
+                                              final selectedChecker = controller
+                                                  .getSelectedChecker();
+                                              if (selectedChecker?.color ==
+                                                  Colors.black) {
+                                                controller
+                                                    .nextSelectedBlackCheckerPosition(
+                                                        e);
+                                              }
+                                              if (selectedChecker?.color ==
+                                                  Colors.white) {
+                                                controller
+                                                    .nextSelectedWhiteCheckerPosition(
+                                                        e);
+                                              }
+                                              setState(() {});
+                                            },
+                                          ),
+                                        ));
+                                  }).values,
+                                  ...state.gameField.blackPositions
+                                      .asMap()
+                                      .map((i, e) {
+                                    final coords = controller.getPosition(
+                                        e.position, cellWidth);
+                                    return MapEntry(
+                                        i,
+                                        GestureDetector(
+                                          onTap: () {
+                                            // mobxMainScreenController.updateBlackChecker(i, e.copy(isSelected: !e.isSelected));
+                                            controller.selectBlackChecker(i);
+                                          },
+                                          child: Container(
+                                            child: BlackChecker(
+                                              isQueen: e.isQueen,
+                                              isSelected: e.isSelected,
+                                            ),
+                                            margin: EdgeInsets.only(
+                                                left: coords.x - cellWidth,
+                                                top: coords.y - cellWidth),
+                                            width: cellWidth,
+                                            height: cellWidth,
+                                          ),
+                                        ));
+                                  }).values,
+                                  ...state.gameField.whitePositions
+                                      .asMap()
+                                      .map((i, e) {
+                                    final coords = controller.getPosition(
+                                        e.position, cellWidth);
+                                    return MapEntry(
+                                        i,
+                                        GestureDetector(
+                                          onTap: () {
+                                            controller.selectWhiteChecker(i);
+                                          },
+                                          child: Container(
+                                            margin: EdgeInsets.only(
+                                                left: coords.x - cellWidth,
+                                                top: coords.y - cellWidth),
+                                            width: cellWidth,
+                                            height: cellWidth,
+                                            child: WhiteChecker(
+                                              isQueen: e.isQueen,
+                                              isSelected: e.isSelected,
+                                            ),
+                                          ),
+                                        ));
+                                  }).values
+                                ],
+                              ),
+                            );
+                          }),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 12,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CurrentStage(
+                              color: state.gameField.currentSide,
+                              winner: state.winner),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-                SizedBox(
-                  height: 12,
-                ),
-                CheckStack(
-                    svgIcon: "assets/images/white_cat_checker.svg",
-                    count: state
-                        .gameField.deadWhitePositions.length),
-                SizedBox(
-                  height: 12,
-                ),
-                CheckStack(
-                    svgIcon: "assets/images/black_cat_checker.svg",
-                    count: state
-                        .gameField.deadBlackPositions.length)],))
-            ],
-          )
-          : Center(
-        child: CircularProgressIndicator(),
-      );
-    },
+              )
+            : Center(
+                child: CircularProgressIndicator(),
+              );
+      },
     );
   }
-  String currentTime(GameScreenState state){
 
+  String currentTime(GameScreenState state) {
     final minutes = Duration(seconds: state.timeCounter).inMinutes;
-    final seconds = Duration(seconds: state.timeCounter%60).inSeconds;
-    return "${minutes<10?"0$minutes":minutes}:${seconds<10?"0$seconds":seconds}";
+    final seconds = Duration(seconds: state.timeCounter % 60).inSeconds;
+    return "${minutes < 10 ? "0$minutes" : minutes}:${seconds < 10 ? "0$seconds" : seconds}";
   }
 }
 

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -24,7 +23,7 @@ class BlackChecker extends StatelessWidget{
               isQueen
                   ? "assets/images/black_cat_queen.svg"
                   : "assets/images/black_cat_checker.svg",
-            
+
             ),
           ),
         ),
