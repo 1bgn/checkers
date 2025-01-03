@@ -9,7 +9,7 @@ import '../dto/connect_to_game_response.dart';
 import '../dto/full_game_session_response.dart';
 
 part 'game_session_api.g.dart';
-@LazySingleton()
+@injectable
 @RestApi()
 abstract class GameSessionApi{
   @factoryMethod

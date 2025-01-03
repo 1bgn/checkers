@@ -69,6 +69,7 @@ class _CreateNewGameScreenState extends State<CreateNewGameScreen> {
                   children: [
                     Expanded(
                       child: CupertinoButton(
+                        color: Colors.green,
                           child: Text("Создать"), onPressed: () async {
                           final result =  await controller.createNewGame();
                           final connection = await controller.connectToGame();

@@ -51,6 +51,14 @@ class UserRepository implements IUserRepository{
     }
     return null;
   }
+  @override
+  void setSound(bool sound) {
+    localStorage.setItem(LocalConstants.enableSound,sound.toString() );
+  }
 
+  @override
+  bool getSound() {
+    return localStorage.getItem(LocalConstants.enableSound)=="true";
+  }
 
 }

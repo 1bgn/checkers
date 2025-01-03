@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:audioplayers/audioplayers.dart';
+import 'package:checker/common/extensions/checker_extension.dart';
 import 'package:checker/common/game_session_feature/domain/model/game_connection.dart';
 import 'package:checker/common/game_session_feature/domain/model/game_session.dart';
 import 'package:checker/common/game_session_feature/domain/model/user_connection.dart';
@@ -28,6 +30,23 @@ class OnlineGameScreenController extends Cubit<OnlineGameScreenState> {
   void sendEmoji(String emoji){
     _gameScreenService.sendEmoji(state.gameSession.id, emoji,state.currentUser!.accessToken);
   }
+  void showLastStep(){
+   if(state.history.length>2){
+     emit(state.copyWith(lastStepGameField: state.history[ state.history.length-2]));
+   }
+  }
+  void hideLastStep(){
+    emit(state.copyWith(lastStepGameField:null));
+  }
+  List<Checker> blackPositions(){
+ return state.lastStepGameField?.blackPositions??state.gameField.blackPositions;
+  }
+  List<Checker> whitePositions(){
+    return state.lastStepGameField?.whitePositions??state.gameField.whitePositions;
+  }
+  bool isYourStep(){
+   return state.colorCurrentUser==state.gameField.currentSide;
+  }
 void setEmoji(EmojiModel? emoji){
     emit(state.copyWith(currentEmoji: emoji));
 }
@@ -37,15 +56,42 @@ void setEmoji(EmojiModel? emoji){
         connectionToGame, connection);
     emit(state.copyWith(sender: sender));
   }
+  bool isMovement(GameField gm1,GameField gm2){
+    final blackDifference = gm1.blackPositions.gc_positions.toSet().difference(gm2.blackPositions.gc_positions.toSet());
+    final whiteDifference = gm1.whitePositions.gc_positions.toSet().difference(gm2.whitePositions.gc_positions.toSet());
+    print("black difference: $blackDifference");
+    print("white difference: $whiteDifference");
+    return blackDifference.isNotEmpty || whiteDifference.isNotEmpty;
+  }
+  void saveGameSessionHistory(GameField gameField){
+    if(state.history.isEmpty|| isMovement( gameField,state.history.last)){
+      emit(state.copyWith(history: [...state.history,gameField]));
+
+    }
+    // if(state.gameField.blackPositions.gc_positions  != gameSession.gameField.blackPositions.gc_positions  && state.gameField.whitePositions.gc_positions!=gameSession.gameField.whitePositions.gc_positions){
+  }
+  Future<void> lose(){
+    return _gameScreenService.lose(state.gameSession.gameSessionItem.sessionId, state.currentUser!.nickname);
+  }
 
   void updateGameSession(GameSession gameSession) {
     final user = _gameScreenService.getCurrentUser();
+    if(state.history.isNotEmpty&&isMovement(state.history.last, state.gameField)){
+      moveSound();
+    }
+    saveGameSessionHistory(gameSession.gameField);
+
+
+
+
     emit(state.copyWith(
         gameField: gameSession.gameField,
+        // gameSession: gameSession,
         opponentUser: gameSession.gameSessionItem.whiteGamePlayer == user
             ? gameSession.gameSessionItem.blackGamePlayer
             : gameSession.gameSessionItem.whiteGamePlayer,
         currentUser: user));
+
   }
 
   void resetGame() {
@@ -60,6 +106,7 @@ void setEmoji(EmojiModel? emoji){
       GameSession gameSession, GameConnection gameConnection) async {
     emit(state.copyWith(isLoading: true, reciever: StreamController()));
     emit(state.copyWith(
+
         opponentUser: gameConnection.sideColor == Colors.white
             ? gameSession.gameSessionItem.blackGamePlayer
             : gameSession.gameSessionItem.whiteGamePlayer,
@@ -73,7 +120,7 @@ void setEmoji(EmojiModel? emoji){
                     : null))));
 
     _deployCurrentSession(gameSession);
-    emit(state.copyWith(colorCurrentUser: gameConnection.sideColor));
+    emit(state.copyWith(colorCurrentUser: gameConnection.sideColor,));
     emit(state.copyWith(isLoading: false, isUploaded: true));
     return state;
   }
@@ -136,6 +183,8 @@ void setEmoji(EmojiModel? emoji){
       emit(state.copyWith(
           gameField: state.gameField.copyWith(currentSide: Colors.white)));
     }
+
+  // moveSound();
 
     return state.gameField;
   }
@@ -203,6 +252,12 @@ void setEmoji(EmojiModel? emoji){
           ])));
     }
   }
+  Future<void> moveSound()async {
+   if(_gameScreenService.getSound()){
+     final player = AudioPlayer();
+     await player.play(AssetSource("sounds/move_sound.mp3"));
+   }
+  }
 
   GameField nextSelectedWhiteCheckerPosition(GameCell position) {
     final index = state.gameField.whitePositions
@@ -251,6 +306,7 @@ void setEmoji(EmojiModel? emoji){
       emit(state.copyWith(
           gameField: state.gameField.copyWith(currentSide: Colors.black)));
     }
+   // moveSound();
     return state.gameField;
   }
 

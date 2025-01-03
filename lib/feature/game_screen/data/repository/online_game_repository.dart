@@ -14,4 +14,9 @@ class OnlineGameRepository implements IOnlineGameRepository{
     return _gameScreenApi.sendEmoji(EmojiDto(sessionId: emojiModel.sessionId, emoji: emojiModel.emoji, accessTokenFrom: emojiModel.accessTokenFrom));
   }
 
+  @override
+  Future<void> lose(String sessionId, String nickname) {
+    return _gameScreenApi.lose(sessionId, nickname);
+  }
+
 }

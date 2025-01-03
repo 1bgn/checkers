@@ -17,13 +17,14 @@ import 'package:injectable/injectable.dart';
 
 import '../../feature/game_screen/presentation/controller/online_game_screen_controller.dart';
 import '../../feature/game_screen/presentation/ui/game_screen.dart';
+import '../../feature/select_new_game/presentation/controller/select_new_game_screen_controller.dart';
 import '../../feature/win_game_dialog/presentation/ui/win_game_dialog.dart';
 import '../di/di_container.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey =
-    GlobalKey(debugLabel: 'root');
+GlobalKey(debugLabel: 'root');
 final GlobalKey<StatefulNavigationShellState> _shellNavigatorKey =
-    GlobalKey(debugLabel: 'shell');
+GlobalKey(debugLabel: 'shell');
 
 @LazySingleton()
 class GoRouterProvider {
@@ -40,9 +41,9 @@ class GoRouterProvider {
               pageBuilder: (context, state) {
                 return NoTransitionPage(
                     child: BlocProvider(
-                  create: (context) => GameScreenController(getIt()),
-                  child: GameScreen(),
-                ));
+                      create: (context) => GameScreenController(getIt()),
+                      child: GameScreen(),
+                    ));
               }),
           GoRoute(
               path: "/online-game-route",
@@ -50,29 +51,30 @@ class GoRouterProvider {
               pageBuilder: (context, state) {
                 return NoTransitionPage(
                     child: MultiBlocProvider(
-                  providers: [
-                    BlocProvider(
-                        create: (context) => GameScreenController(getIt())),
-                    BlocProvider(
-                        create: (context) =>
-                            OnlineGameScreenController(getIt()))
-                  ],
-                  child: GameScreen(
-                    gameSession: (state.extra! as dynamic)[0],
-                    gameConnection: (state.extra! as dynamic)[1],
-                  ),
-                ));
+                      providers: [
+                        BlocProvider(
+                            create: (context) => GameScreenController(getIt())),
+                        BlocProvider(
+                            create: (context) =>
+                                OnlineGameScreenController(getIt()))
+                      ],
+                      child: GameScreen(
+                        gameSession: (state.extra! as dynamic)[0],
+                        gameConnection: (state.extra! as dynamic)[1],
+                      ),
+                    ));
               }),
           GoRoute(
               path: "/win-game-route",
               name: winGameRoute,
               pageBuilder: (context, state) {
                 return DialogPage(
-                    builder: (context) => BlocProvider(
+                    builder: (context) =>
+                        BlocProvider(
                           create: (context) => WinGameDialogController(getIt()),
                           child: WinGameDialog(
                             gameSession:
-                                (state.extra! as dynamic)["gameSession"],
+                            (state.extra! as dynamic)["gameSession"],
                           ),
                         ),
                     barrierDismissible: false
@@ -84,9 +86,9 @@ class GoRouterProvider {
               pageBuilder: (context, state) {
                 return NoTransitionPage(
                     child: BlocProvider(
-                  create: (context) => CreateNewGameController(getIt()),
-                  child: CreateNewGameScreen(),
-                ));
+                      create: (context) => CreateNewGameController(getIt()),
+                      child: CreateNewGameScreen(),
+                    ));
               }),
           StatefulShellRoute.indexedStack(
               branches: [
@@ -96,9 +98,12 @@ class GoRouterProvider {
                       name: selectGameRoute,
                       pageBuilder: (context, state) {
                         return NoTransitionPage(
-                            child: SelectNewGameScreen(
-                          key: UniqueKey(),
-                        ));
+                            child: BlocProvider(
+                              create: (context) => SelectNewGameScreenController(getIt()),
+                              child: SelectNewGameScreen(
+                                key: UniqueKey(),
+                              ),
+                            ));
                       }),
                 ]),
                 StatefulShellBranch(routes: [
@@ -108,12 +113,13 @@ class GoRouterProvider {
                       pageBuilder: (context, state) {
                         return NoTransitionPage(
                             child: BlocProvider(
-                          create: (context) => GameSessionController(getIt()),
-                          child: GameSessionsScreen(
-                            isPrivate: false,
-                            key: UniqueKey(),
-                          ),
-                        ));
+                              create: (context) =>
+                                  GameSessionController(getIt()),
+                              child: GameSessionsScreen(
+                                isPrivate: false,
+                                key: UniqueKey(),
+                              ),
+                            ));
                       }),
                 ]),
                 StatefulShellBranch(routes: [
@@ -123,12 +129,13 @@ class GoRouterProvider {
                       pageBuilder: (context, state) {
                         return NoTransitionPage(
                             child: BlocProvider(
-                          create: (context) => GameSessionController(getIt()),
-                          child: GameSessionsScreen(
-                            isPrivate: true,
-                            key: UniqueKey(),
-                          ),
-                        ));
+                              create: (context) =>
+                                  GameSessionController(getIt()),
+                              child: GameSessionsScreen(
+                                isPrivate: true,
+                                key: UniqueKey(),
+                              ),
+                            ));
                       }),
                 ]),
               ],

@@ -21,7 +21,7 @@ class _EmojiSceneState extends State<EmojiScene>  with SingleTickerProviderState
 
 
       duration: const Duration(
-        milliseconds: 1200,
+        milliseconds: 1300,
       ),
     );
     _controller?.addListener(() {
@@ -31,7 +31,7 @@ class _EmojiSceneState extends State<EmojiScene>  with SingleTickerProviderState
      await _controller!.reverse();
       widget.callback();
     });
-    _tween = Tween(begin: 0.0,end: 1.0).animate(CurvedAnimation(parent: _controller!, curve: Curves.decelerate));
+    _tween = Tween(begin: 0.0,end: 1.0).animate(CurvedAnimation(parent: _controller!, curve: Curves.ease));
 
 
   }
@@ -44,7 +44,7 @@ class _EmojiSceneState extends State<EmojiScene>  with SingleTickerProviderState
   Widget build(BuildContext context) {
 
     return Transform.rotate(
-      angle: 120/360*_tween?.value,
+      angle: 30/360*_tween?.value,
       child: Padding(
         padding:  EdgeInsets.only(top: _controller?.value??0)*120,
         child: Text(widget.content,style: TextStyle(fontSize: ((_tween?.value*124)??0)),),

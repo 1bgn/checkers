@@ -8,4 +8,5 @@ abstract class IMainService{
   User? getLocalUser();
   Future<User> getRemoteUser(GetUser getUser);
   void saveUser(User userResponse);
+
 }

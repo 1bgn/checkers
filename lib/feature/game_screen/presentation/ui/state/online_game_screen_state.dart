@@ -18,7 +18,11 @@ class OnlineGameScreenState with _$OnlineGameScreenState{
     @Default(false) final bool isUploaded,
     @Default(false) final bool isDeleted,
     @Default(false) final bool isReadonly,
+    // @Default(false) final bool isYourStep,
     @Default(GameField()) final GameField gameField,
+    @Default(null) final GameField? lastStepGameField,
+    @Default([]) final List<GameField> history,
+
     @Default(GameSession()) final GameSession gameSession,
     @Default(null) final User? currentUser,
     @Default(null)final  Color?  colorCurrentUser,

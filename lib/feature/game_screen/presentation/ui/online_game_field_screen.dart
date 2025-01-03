@@ -42,7 +42,6 @@ class _OnlineGameFieldScreenState extends State<OnlineGameFieldScreen> {
     final controller = context.read<OnlineGameScreenController>();
 
     controller.init(widget.gameSession, widget.gameConnection).then((v) async {
-
       await controller.listenGameSession(
           ConnectToGame(nickname: controller.state.currentUser!.nickname),
           controller.state.reciever!);
@@ -53,16 +52,16 @@ class _OnlineGameFieldScreenState extends State<OnlineGameFieldScreen> {
         switch (d.websocketEventType) {
           case ReceiveWebsocketEventType.SessionEvent:
             final obj = d as WebsocketGameSessionEvent;
-            controller.updateGameSession(obj.gameSession);
-            if(d.gameSession.gameSessionItem.winner!=null ){
-              context.push("/win-game-route",extra: {
-                "gameSession":d.gameSession
-              });
 
+            controller.updateGameSession(obj.gameSession);
+
+            if (d.gameSession.gameSessionItem.winner != null) {
+              context.push("/win-game-route",
+                  extra: {"gameSession": d.gameSession});
             }
 
             break;
-            // if(obj.gameSession.gameSessionItem.winner)
+          // if(obj.gameSession.gameSessionItem.winner)
           case ReceiveWebsocketEventType.FinishGame:
             context.go("/");
             break;
@@ -75,9 +74,6 @@ class _OnlineGameFieldScreenState extends State<OnlineGameFieldScreen> {
             final obj = d as EmojiWebsocketEvent;
             controller.setEmoji(obj.emoji);
         }
-
-
-
       });
     });
 
@@ -100,16 +96,17 @@ class _OnlineGameFieldScreenState extends State<OnlineGameFieldScreen> {
     timer?.cancel();
   }
 
-  User? opponent(OnlineGameScreenState state){
-    if(state.currentUser==state.gameSession.gameSessionItem.whiteGamePlayer){
+  User? opponent(OnlineGameScreenState state) {
+    if (state.currentUser?.id ==
+        state.gameSession.gameSessionItem.whiteGamePlayer?.id) {
       return state.gameSession.gameSessionItem.blackGamePlayer;
     }
-    return state.gameSession.gameSessionItem.whiteGamePlayer;
 
+    return state.gameSession.gameSessionItem.whiteGamePlayer;
   }
 
   int rotations(OnlineGameScreenState state) {
-    if(kDebugMode){
+    if (kDebugMode) {
       return 0;
     }
     return state.gameSession.gameSessionItem.whiteGamePlayer ==
@@ -117,6 +114,7 @@ class _OnlineGameFieldScreenState extends State<OnlineGameFieldScreen> {
         ? 90
         : 0;
   }
+
   // bool iCanTap(OnlineGameScreenState state){
   //   return state.gameField.currentSide==Colors.white || kDebugMode;
   // }
@@ -127,138 +125,190 @@ class _OnlineGameFieldScreenState extends State<OnlineGameFieldScreen> {
         final controller = context.read<OnlineGameScreenController>();
         final oppoentuser = opponent(state);
         return state.isUploaded
-            ? Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Stack(
-                children: [
-                  Column(
-
+            ? Stack(
+              children: [
+                ScrollConfiguration(
+                  behavior:  ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                  child: SingleChildScrollView(
+                    child: Column(
                       children: [
-
-                       oppoentuser!=null?Text("${oppoentuser.nickname}",style: TextStyle(fontSize: 24,fontWeight: FontWeight.w500,color: Colors.brown),):Text("",style: TextStyle(fontSize: 24,fontWeight: FontWeight.w500,color: Colors.brown),),
-                        Column(
-                          children: [
-
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    "Счет:",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        fontSize: 20, fontWeight: FontWeight.w500),
-                                  ),
-                                )
-                              ],
-                            ),
-                            SizedBox(
-                              height: 12,
-                            ),
-                            CheckStack(
-                                svgIcon: "assets/images/white_cat_checker.svg",
-                                count: state.gameField.deadWhitePositions.length),
-                            SizedBox(
-                              height: 12,
-                            ),
-                            CheckStack(
-                                svgIcon: "assets/images/black_cat_checker.svg",
-                                count: state.gameField.deadBlackPositions.length)
-                          ],
+                        oppoentuser != null
+                            ? Text(
+                                "${oppoentuser.nickname}",
+                                style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.brown),
+                              )
+                            : Text(
+                                "",
+                                style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.brown),
+                              ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      "Счет:",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  )
+                                ],
+                              ),
+                              SizedBox(
+                                height: 12,
+                              ),
+                              CheckStack(
+                                  svgIcon:
+                                      "assets/images/white_cat_checker.svg",
+                                  count: state
+                                      .gameField.deadWhitePositions.length),
+                              SizedBox(
+                                height: 12,
+                              ),
+                              CheckStack(
+                                  svgIcon:
+                                      "assets/images/black_cat_checker.svg",
+                                  count:
+                                      state.gameField.deadBlackPositions.length)
+                            ],
+                          ),
                         ),
-                        // if (state.opponentUser == null)
-                        //   Column(
-                        //     children: [
-                        //       Padding(
-                        //         padding: const EdgeInsets.only(bottom: 12, top: 12),
-                        //         child: Text("Ожидаем вашего оппонента..."),
-                        //       ),
-                        //     ],
-                        //   ),
-                        SizedBox(height: 24,),
-                        Expanded(
-                          flex: 2,
+
+                        SizedBox(
+                          height: 24,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: LayoutBuilder(builder: (context, constraints) {
                             // final screenSize = MediaQuery.of(context).size;
-                            final width =
+                            var width =
                                 constraints.maxWidth < constraints.maxHeight
                                     ? constraints.maxWidth
                                     : constraints.maxHeight;
+                            if (width > MediaQuery.of(context).size.height) {
+                              // width = MediaQuery.of(context).size.height-(Scaffold.of(context).appBarMaxHeight??48);
+                              width = MediaQuery.of(context).size.height -
+                                  (Scaffold.of(context).appBarMaxHeight ?? 48);
+                            }
                             final cellWidth = width / 8;
                             return RotatedBox(
                               quarterTurns: rotations(state),
                               child: Center(
                                 child: Container(
+
                                   width: width,
                                   height: width,
-                                  decoration:  BoxDecoration(
+                                  decoration: BoxDecoration(
                                     color: Colors.redAccent,
-                                boxShadow: [BoxShadow(spreadRadius: 1,blurRadius: 7,offset: Offset(5,5,),color: Colors.grey)],
-                                borderRadius:
-                                BorderRadius.all(Radius.circular(12)),
-                                border: Border.all(color: Colors.brown),
-                                                            ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          spreadRadius: 1,
+                                          blurRadius: 7,
+                                          offset: Offset(
+                                            5,
+                                            5,
+                                          ),
+                                          color: Colors.grey)
+                                    ],
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(12)),
+                                    border: Border.all(color: Colors.brown),
+                                  ),
                                   child: Stack(
                                     children: [
-                                      ...state.gameField.cells.asMap().map((i,e) {
-                                        final coords =
-                                            controller.getPosition(e, cellWidth);
-                                        return MapEntry(i, Container(
-                                          margin: EdgeInsets.only(
-                                              left: coords.x - cellWidth,
-                                              top: coords.y - cellWidth),
-                                          width: cellWidth,
-                                          height: cellWidth,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.only(
-                                                topLeft: i == 0
-                                                    ? Radius.circular(12)
-                                                    : Radius.zero,
-                                                topRight:  i == 7
-                                                    ? Radius.circular(12)
-                                                    : Radius.zero,
-                                                bottomLeft:  i == 56
-                                                    ? Radius.circular(12)
-                                                    : Radius.zero,
-                                                bottomRight:  i == 63
-                                                    ? Radius.circular(12)
-                                                    : Radius.zero
+                                      ...state.gameField.cells
+                                          .asMap()
+                                          .map((i, e) {
+                                        final coords = controller.getPosition(
+                                            e, cellWidth);
+                                        return MapEntry(
+                                            i,
+                                            Container(
+                                              margin: EdgeInsets.only(
+                                                  left: coords.x - cellWidth,
+                                                  top: coords.y - cellWidth),
+                                              width: cellWidth,
+                                              height: cellWidth,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.only(
+                                                    topLeft: i == 0
+                                                        ? Radius.circular(12)
+                                                        : Radius.zero,
+                                                    topRight: i == 7
+                                                        ? Radius.circular(12)
+                                                        : Radius.zero,
+                                                    bottomLeft: i == 56
+                                                        ? Radius.circular(12)
+                                                        : Radius.zero,
+                                                    bottomRight: i == 63
+                                                        ? Radius.circular(12)
+                                                        : Radius.zero),
+                                                color: e.cellColor ==
+                                                        CellColor.black
+                                                    ? Colors.brown
+                                                    : Colors.brown.shade100,
+                                              ),
+                                              child: _LightMarker(
+                                                cell: e,
+                                                isLight:
+                                                    controller.isLightedCell(e),
+                                                isAttackLight: controller
+                                                    .isAttackLightedCell(e),
+                                                onTap: () {
+                                                  if (state.currentUser ==
+                                                          state
+                                                              .gameSession
+                                                              .gameSessionItem
+                                                              .blackGamePlayer ||
+                                                      kDebugMode) {
+                                                    final selectedChecker =
+                                                        controller
+                                                            .getSelectedChecker();
+                                                    if (selectedChecker
+                                                            ?.color ==
+                                                        Colors.black) {
+                                                      controller
+                                                          .nextSelectedBlackCheckerPosition(
+                                                              e);
+                                                    }
+                                                  }
+                                                  if ((state.currentUser ==
+                                                          state
+                                                              .gameSession
+                                                              .gameSessionItem
+                                                              .whiteGamePlayer ||
+                                                      kDebugMode)) {
+                                                    final selectedChecker =
+                                                        controller
+                                                            .getSelectedChecker();
+                                                    if (selectedChecker
+                                                            ?.color ==
+                                                        Colors.white) {
+                                                      controller
+                                                          .nextSelectedWhiteCheckerPosition(
+                                                              e);
+                                                      // controller.state.sender?.add(WebsocketGameSessionEventSession(eventType: SenderWebsocketEventType.UpdateSessionState,gameSession:state.gameSession.copyWith(gameField: res,)));
+                                                    }
+                                                  }
 
-
-                                            ),
-                                            color: e.cellColor == CellColor.black
-                                                ? Colors.brown
-                                                : Colors.brown.shade100,
-                                          ),
-                                          child: _LightMarker(
-                                            cell: e,
-                                            isLight: controller.isLightedCell(e),
-                                            isAttackLight:
-                                            controller.isAttackLightedCell(e),
-                                            onTap: () {
-                                              final selectedChecker =
-                                              controller.getSelectedChecker();
-
-                                              if (selectedChecker?.color ==
-                                                  Colors.black && (state.currentUser==state.gameSession.gameSessionItem.blackGamePlayer || kDebugMode)) {
-                                                controller
-                                                    .nextSelectedBlackCheckerPosition(
-                                                    e);
-                                              }
-                                              if (selectedChecker?.color ==
-                                                  Colors.white && (state.currentUser==state.gameSession.gameSessionItem.whiteGamePlayer || kDebugMode)) {
-                                                controller
-                                                    .nextSelectedWhiteCheckerPosition(
-                                                    e);
-                                                // controller.state.sender?.add(WebsocketGameSessionEventSession(eventType: SenderWebsocketEventType.UpdateSessionState,gameSession:state.gameSession.copyWith(gameField: res,)));
-                                              }
-                                              controller.upgradeGameField();
-
-                                              setState(() {});
-                                            },
-                                          ),
-                                        ));
+                                                  controller.upgradeGameField();
+                                                  controller.hideLastStep();
+                                                  setState(() {});
+                                                },
+                                              ),
+                                            ));
                                       }).values,
-                                      ...state.gameField.blackPositions
+                                      ...controller.blackPositions()
                                           .asMap()
                                           .map((i, e) {
                                         final coords = controller.getPosition(
@@ -268,8 +318,14 @@ class _OnlineGameFieldScreenState extends State<OnlineGameFieldScreen> {
                                             GestureDetector(
                                               onTap: () {
                                                 // mobxMainScreenController.updateBlackChecker(i, e.copy(isSelected: !e.isSelected));
-                                                if(state.currentUser==state.gameSession.gameSessionItem.blackGamePlayer ||kDebugMode ){
-                                                  controller.selectBlackChecker(i);
+                                                if (state.currentUser ==
+                                                        state
+                                                            .gameSession
+                                                            .gameSessionItem
+                                                            .blackGamePlayer ||
+                                                    kDebugMode) {
+                                                  controller
+                                                      .selectBlackChecker(i);
                                                   controller.upgradeGameField();
                                                 }
                                               },
@@ -280,7 +336,8 @@ class _OnlineGameFieldScreenState extends State<OnlineGameFieldScreen> {
                                                 width: cellWidth,
                                                 height: cellWidth,
                                                 child: RotatedBox(
-                                                    quarterTurns: rotations(state),
+                                                    quarterTurns:
+                                                        rotations(state),
                                                     child: BlackChecker(
                                                       isQueen: e.isQueen,
                                                       isSelected: e.isSelected,
@@ -288,7 +345,7 @@ class _OnlineGameFieldScreenState extends State<OnlineGameFieldScreen> {
                                               ),
                                             ));
                                       }).values,
-                                      ...state.gameField.whitePositions
+                                      ...controller.whitePositions()
                                           .asMap()
                                           .map((i, e) {
                                         final coords = controller.getPosition(
@@ -297,11 +354,17 @@ class _OnlineGameFieldScreenState extends State<OnlineGameFieldScreen> {
                                             i,
                                             GestureDetector(
                                               onTap: () {
-                                                if(state.currentUser==state.gameSession.gameSessionItem.whiteGamePlayer || kDebugMode){
-                                                  controller.selectWhiteChecker(i);
+                                                if (state.currentUser ==
+                                                        state
+                                                            .gameSession
+                                                            .gameSessionItem
+                                                            .whiteGamePlayer ||
+                                                    kDebugMode) {
+                                                  controller
+                                                      .selectWhiteChecker(i);
                                                   controller.upgradeGameField();
+                                                  controller.hideLastStep();
                                                 }
-
                                               },
                                               child: Container(
                                                 margin: EdgeInsets.only(
@@ -310,7 +373,8 @@ class _OnlineGameFieldScreenState extends State<OnlineGameFieldScreen> {
                                                 width: cellWidth,
                                                 height: cellWidth,
                                                 child: RotatedBox(
-                                                    quarterTurns: rotations(state),
+                                                    quarterTurns:
+                                                        rotations(state),
                                                     child: WhiteChecker(
                                                       isQueen: e.isQueen,
                                                       isSelected: e.isSelected,
@@ -341,23 +405,101 @@ class _OnlineGameFieldScreenState extends State<OnlineGameFieldScreen> {
                           height: 12,
                         ),
 
-                        EmojiRow(selectEmoji: (e){
-                          controller.sendEmoji(e);
-                        },),
-                        TextRow(selectText: (e){
-                          controller.sendEmoji(e);
-                        }),
-                        SizedBox(height: 12,)
-                        // Row(mainAxisAlignment: MainAxisAlignment.center,children: [],),
+                        EmojiRow(
+                          selectEmoji: (e) {
+                            controller.sendEmoji(e);
+                          },
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Row(
+                            children: [
+
+                              state.lastStepGameField==null?Expanded(
+                                child: ElevatedButton.icon(
+                                  style: ButtonStyle(
+                                    iconColor: WidgetStatePropertyAll(Colors.white),
+                                      foregroundColor: WidgetStatePropertyAll(Colors.white),
+                                      backgroundColor:controller.isYourStep()&&state.history.isNotEmpty
+                                          ? WidgetStatePropertyAll(Colors.green)
+                                          : WidgetStatePropertyAll(Colors.grey)),
+                                  onPressed: () {
+                                    if(controller.isYourStep()&&state.history.isNotEmpty){
+                                      controller.showLastStep();
+                                    }
+                                  },
+                                  icon: Icon(Icons.replay),
+                                  label: Text("Last replay"),
+                                ),
+                              ):Expanded(
+                                child: ElevatedButton.icon(
+                                  style: ButtonStyle(
+                                      iconColor: WidgetStatePropertyAll(Colors.white),
+                                      foregroundColor: WidgetStatePropertyAll(Colors.white),
+                                      backgroundColor:controller.isYourStep()&&state.history.isNotEmpty
+                                          ? WidgetStatePropertyAll(Colors.green)
+                                          : WidgetStatePropertyAll(Colors.grey)),
+                                  onPressed: () {
+                                    if(controller.isYourStep()&&state.history.isNotEmpty){
+                                      controller.hideLastStep();
+                                    }
+                                  },
+                                  icon: Icon(Icons.reply_outlined),
+                                  label: Text("Current step"),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 16,
+                              ),
+                              // FilledButton(onPressed: (){}, child: Text("Дзынь!!!",),style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.yellow))),
+                              // SizedBox(
+                              //   width: 16,
+                              // ),
+                             state.gameSession.gameSessionItem.whiteGamePlayer!=null && state.gameSession.gameSessionItem.blackGamePlayer!=null? FilledButton(onPressed: (){
+                                controller.lose();
+                              }, child: Text("Сдаться"),style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.red)),):FilledButton(onPressed: (){
+                               controller.lose();
+                             }, child: Text("Сдаться"),style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.grey)),),
+
+                              // Expanded(
+                              //   child: TextRow(selectText: (e) {
+                              //     controller.sendEmoji(e);
+                              //   }),
+                              // )
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 12,
+                        ),
+                        Row(mainAxisAlignment: MainAxisAlignment.center,children: [
+                          Expanded(child: TextRow(selectText: (t){
+                            controller.sendEmoji(t);
+                          }))
+                        ],),
+                        SizedBox(
+                          height: 16,
+                        ),
                         // Row(mainAxisAlignment: MainAxisAlignment.center,children: [Text("Session id: "),SizedBox(width: 6,),Text(widget.gameSession.gameSessionItem.id.substring(0,8))],)
                       ],
                     ),
-                  state.currentEmoji!=null?Align(child: EmojiScene(content: state.currentEmoji!.emoji,callback: (){
-                  controller.setEmoji(null);
-                  },),alignment:state.currentUser!.accessToken==state.currentEmoji!.accessTokenFrom?Alignment.bottomCenter: Alignment.topCenter,):SizedBox()
-
-                ],
-              ),
+                  ),
+                ),
+                state.currentEmoji != null
+                    ? Align(
+                        child: EmojiScene(
+                          content: state.currentEmoji!.emoji,
+                          callback: () {
+                            controller.setEmoji(null);
+                          },
+                        ),
+                        alignment: state.currentUser!.accessToken ==
+                                state.currentEmoji!.accessTokenFrom
+                            ? Alignment.bottomCenter
+                            : Alignment.topCenter,
+                      )
+                    : SizedBox()
+              ],
             )
             : Center(
                 child: CircularProgressIndicator(),

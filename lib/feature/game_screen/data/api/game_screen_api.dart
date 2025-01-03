@@ -12,5 +12,7 @@ abstract class GameScreenApi{
   factory GameScreenApi(Dio dio, {String? baseUrl}) = _GameScreenApi;
   @GET("/send-emoji")
   Future<void> sendEmoji(@Queries() EmojiDto emojiDto );
+  @GET("/lose")
+  Future<void> lose(@Query("session_id") String sessionId,@Query("nickname")String nickname);
 
 }

@@ -16,4 +16,5 @@ abstract class MainApi{
   factory MainApi(Dio dio, {String? baseUrl}) = _MainApi;
   @POST("/register_user")
   Future<UserDto> registerUser(@Body() RegisterUserDto registerUserDto);
+
 }

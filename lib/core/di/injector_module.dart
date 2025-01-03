@@ -19,7 +19,7 @@ abstract class InjectorModule {
   }
 
   @Singleton()
-  // String get baseUrl=>'http://192.168.3.24:3000/';
-  String get baseUrl => kDebugMode?'http://192.168.0.17:3000/':'http://79.174.81.94:81/';
+  // String get baseUrl=>'http://192.168.0.17:3000/';
+  String get baseUrl => kDebugMode?'http://192.168.3.8:3000/':'http://79.174.81.94:81/';
   // String get baseUrl=>'http://79.174.81.94:81/';
 }

@@ -29,6 +29,7 @@ class GameScreenService extends IGameScreenService {
   GameScreenService(
       this.userRepository, this._iGameRepository, this._iOnlineGameRepository);
 
+
   @override
   CheckerPosition getPosition(GameCell checker, double cellWidth) {
     final halfWidth = cellWidth;
@@ -851,5 +852,16 @@ class GameScreenService extends IGameScreenService {
   @override
   Future<void> sendEmoji(String sessionId, String emoji,String accessTokenFrom) {
     return _iOnlineGameRepository.sendEmoji(EmojiModel(sessionId: sessionId, emoji: emoji, accessTokenFrom: accessTokenFrom));
+  }
+
+  @override
+  bool getSound() {
+    return userRepository.getSound();
+  }
+
+  @override
+  Future<void> lose(String sessionId, String nickname) {
+    return _iOnlineGameRepository.lose(sessionId, nickname);
+
   }
 }

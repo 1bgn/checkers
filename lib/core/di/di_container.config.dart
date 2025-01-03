@@ -68,6 +68,12 @@ import 'package:checker/feature/main_screen/data/repository/imain_repository.dar
     as _i1032;
 import 'package:checker/feature/main_screen/data/repository/main_repository.dart'
     as _i1034;
+import 'package:checker/feature/select_new_game/application/iselect_new_game_service.dart'
+    as _i856;
+import 'package:checker/feature/select_new_game/application/select_new_game_service.dart'
+    as _i890;
+import 'package:checker/feature/select_new_game/presentation/controller/select_new_game_screen_controller.dart'
+    as _i508;
 import 'package:checker/feature/server_sessions_screeen/application/game_list_api_service.dart'
     as _i91;
 import 'package:checker/feature/server_sessions_screeen/application/igame_list_api_service.dart'
@@ -116,10 +122,6 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i361.Dio>(),
           baseUrl: gh<String>(),
         ));
-    gh.lazySingleton<_i820.GameSessionApi>(() => _i820.GameSessionApi(
-          gh<_i361.Dio>(),
-          baseUrl: gh<String>(),
-        ));
     gh.lazySingleton<_i303.ServerSessionsApi>(() => _i303.ServerSessionsApi(
           gh<_i361.Dio>(),
           baseUrl: gh<String>(),
@@ -137,6 +139,10 @@ extension GetItInjectableX on _i174.GetIt {
               gh<_i361.Dio>(),
               baseUrl: gh<String>(),
             ));
+    gh.factory<_i820.GameSessionApi>(() => _i820.GameSessionApi(
+          gh<_i361.Dio>(),
+          baseUrl: gh<String>(),
+        ));
     gh.factory<_i1071.WinGameDialogApi>(() => _i1071.WinGameDialogApi(
           gh<_i361.Dio>(),
           baseUrl: gh<String>(),
@@ -181,6 +187,8 @@ extension GetItInjectableX on _i174.GetIt {
               iCreateNewGameRepository: gh<_i806.ICreateNewGameRepository>(),
               iUserRepository: gh<_i311.IUserRepository>(),
             ));
+    gh.factory<_i890.SelectNewGameService>(
+        () => _i856.ISelectNewGameService(gh<_i311.IUserRepository>()));
     gh.lazySingleton<_i1006.IMainService>(() => _i808.MainService(
           gh<_i1032.IMainRepository>(),
           gh<_i311.IUserRepository>(),
@@ -188,6 +196,8 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.lazySingleton<_i313.CreateNewGameController>(() =>
         _i313.CreateNewGameController(gh<_i1007.ICreateNewGameService>()));
+    gh.factory<_i508.SelectNewGameScreenController>(() =>
+        _i508.SelectNewGameScreenController(gh<_i890.SelectNewGameService>()));
     return this;
   }
 }

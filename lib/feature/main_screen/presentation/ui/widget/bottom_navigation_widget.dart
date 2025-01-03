@@ -14,6 +14,7 @@ class BottomNavigationWidget extends StatelessWidget {
       child: BlocBuilder<MainScreenController  , MainScreenState>(
         builder: (context, state) {
           return NavigationBar(
+            backgroundColor: Colors.green.withOpacity(0.3),
             destinations: [
               NavigationDestination(
                   icon: Icon(Icons.add), label: 'Create new game'),

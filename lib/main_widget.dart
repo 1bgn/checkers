@@ -15,6 +15,7 @@ class _MainWidgetState extends State<MainWidget> {
   Widget build(BuildContext context) {
     final route = getIt.get<GoRouterProvider>();
     return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       routerConfig: route.goRouter(),
     );
   }

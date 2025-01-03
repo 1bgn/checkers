@@ -10,7 +10,7 @@ class EmojiRow extends StatefulWidget {
 }
 
 class _EmojiRowState extends State<EmojiRow> {
-  final List<String> emojies = ["😺","😸","😹","😻","😼","😽","🙀","😿","😾","🫶","🤔","🫣","🤦‍♂️","🤷‍♂️"];
+  final List<String> emojies = ["👋","😺","😸","😹","😼","😽","🫶","🙀","😿","😾","🤔","🫣","🌚"];
 
   @override
   Widget build(BuildContext context) {

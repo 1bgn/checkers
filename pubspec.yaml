@@ -33,6 +33,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_svg: ^2.0.14
   logger: ^2.4.0
+  audioplayers: ^6.1.0
   socket_io_client: ^3.0.2
   pretty_dio_logger: ^1.4.0
   weather_animation: ^1.1.1
@@ -51,6 +52,7 @@ flutter:
 
   assets:
      - assets/images/
+     - assets/sounds/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

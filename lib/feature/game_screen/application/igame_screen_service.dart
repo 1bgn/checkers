@@ -19,6 +19,9 @@ abstract class IGameScreenService {
   CheckerPosition getPosition(GameCell checker, double cellWidth);
 
   Future<void> sendEmoji(String sessionId,String emoji,String accessTokenFrom);
+  bool getSound();
+  Future<void> lose(String sessionId,String nickname);
+
 
 
   GameCell? findTwiceEnemyDiagCells(List<GameCell> positions);
